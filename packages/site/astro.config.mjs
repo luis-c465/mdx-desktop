@@ -15,36 +15,20 @@ export default defineConfig({
 					href: 'https://github.com/luis-c465/mdx-desktop' 
 				}
 			],
-			sidebar: [
-				{
-					label: 'Getting Started',
-					items: [
-						{ label: 'Installation', slug: 'getting-started/installation' },
-						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
-					],
-				},
-				{
-					label: 'Features',
-					items: [
-						{ label: 'Markdown Editor', slug: 'features/editor' },
-						{ label: 'File Management', slug: 'features/file-management' },
-					],
-				},
-				{
-					label: 'Guides',
-					items: [
-						{ label: 'Basic Usage', slug: 'guides/basic-usage' },
-						{ label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
-					],
-				},
-				{
-					label: 'Reference',
-					items: [
-						{ label: 'FAQ', slug: 'reference/faq' },
-						{ label: 'Architecture', slug: 'reference/architecture' },
-					],
-				},
-			],
+		sidebar: [
+			{
+				label: 'Guides',
+				items: [
+					{ label: 'Example Guide', slug: 'guides/example' },
+				],
+			},
+			{
+				label: 'Reference',
+				items: [
+					{ label: 'Example Reference', slug: 'reference/example' },
+				],
+			},
+		],
 			components: {
 				Footer: './src/components/CustomFooter.astro',
 			},
