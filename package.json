@@ -2,6 +2,6 @@
   "name": "my-monorepo",
   "private": true,
   "workspaces": [
-    "app/*"
+    "packages/*"
   ]
 }
