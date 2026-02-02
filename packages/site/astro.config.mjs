@@ -17,17 +17,34 @@ export default defineConfig({
 			],
 		sidebar: [
 			{
-				label: 'Guides',
+				label: 'Getting Started',
 				items: [
-					{ label: 'Example Guide', slug: 'guides/example' },
+					{ label: 'Installation', slug: 'getting-started/installation' },
+					{ label: 'Quick Start', slug: 'getting-started/quick-start' },
 				],
 			},
-			{
-				label: 'Reference',
-				items: [
-					{ label: 'Example Reference', slug: 'reference/example' },
-				],
-			},
+			// TODO: Uncomment these sections as they are implemented in later stages
+			// {
+			// 	label: 'Features',
+			// 	items: [
+			// 		{ label: 'Markdown Editor', slug: 'features/editor' },
+			// 		{ label: 'File Management', slug: 'features/file-management' },
+			// 	],
+			// },
+			// {
+			// 	label: 'Guides',
+			// 	items: [
+			// 		{ label: 'Basic Usage', slug: 'guides/basic-usage' },
+			// 		{ label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
+			// 	],
+			// },
+			// {
+			// 	label: 'Reference',
+			// 	items: [
+			// 		{ label: 'FAQ', slug: 'reference/faq' },
+			// 		{ label: 'Architecture', slug: 'reference/architecture' },
+			// 	],
+			// },
 		],
 			components: {
 				Footer: './src/components/CustomFooter.astro',
