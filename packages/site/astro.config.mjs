@@ -6,21 +6,48 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'My Docs',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+			title: 'MDX Desktop',
+			description: 'A native desktop markdown editor built for performance. Edit 1000+ files with ease.',
+			social: [
+				{ 
+					icon: 'github', 
+					label: 'GitHub Repository', 
+					href: 'https://github.com/luis-c465/mdx-desktop' 
+				}
+			],
 			sidebar: [
+				{
+					label: 'Getting Started',
+					items: [
+						{ label: 'Installation', slug: 'getting-started/installation' },
+						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
+					],
+				},
+				{
+					label: 'Features',
+					items: [
+						{ label: 'Markdown Editor', slug: 'features/editor' },
+						{ label: 'File Management', slug: 'features/file-management' },
+					],
+				},
 				{
 					label: 'Guides',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
+						{ label: 'Basic Usage', slug: 'guides/basic-usage' },
+						{ label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
 					],
 				},
 				{
 					label: 'Reference',
-					autogenerate: { directory: 'reference' },
+					items: [
+						{ label: 'FAQ', slug: 'reference/faq' },
+						{ label: 'Architecture', slug: 'reference/architecture' },
+					],
 				},
 			],
+			components: {
+				Footer: './src/components/CustomFooter.astro',
+			},
 		}),
 	],
 });
