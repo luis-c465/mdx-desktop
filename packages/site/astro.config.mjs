@@ -16,21 +16,21 @@ export default defineConfig({
 				}
 			],
 		sidebar: [
-			{
-				label: 'Getting Started',
-				items: [
-					{ label: 'Installation', slug: 'getting-started/installation' },
-					{ label: 'Quick Start', slug: 'getting-started/quick-start' },
-				],
-			},
-			// TODO: Uncomment these sections as they are implemented in later stages
-			// {
-			// 	label: 'Features',
-			// 	items: [
-			// 		{ label: 'Markdown Editor', slug: 'features/editor' },
-			// 		{ label: 'File Management', slug: 'features/file-management' },
-			// 	],
-			// },
+		{
+			label: 'Getting Started',
+			items: [
+				{ label: 'Installation', slug: 'getting-started/installation' },
+				{ label: 'Quick Start', slug: 'getting-started/quick-start' },
+			],
+		},
+		{
+			label: 'Features',
+			items: [
+				{ label: 'Markdown Editor', slug: 'features/editor' },
+				{ label: 'File Management', slug: 'features/file-management' },
+			],
+		},
+		// TODO: Uncomment these sections as they are implemented in later stages
 			// {
 			// 	label: 'Guides',
 			// 	items: [
