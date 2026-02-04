@@ -30,14 +30,14 @@ export default defineConfig({
 				{ label: 'File Management', slug: 'features/file-management' },
 			],
 		},
-		// TODO: Uncomment these sections as they are implemented in later stages
-			// {
-			// 	label: 'Guides',
-			// 	items: [
-			// 		{ label: 'Basic Usage', slug: 'guides/basic-usage' },
-			// 		{ label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
-			// 	],
-			// },
+		{
+			label: 'Guides',
+			items: [
+				{ label: 'Basic Usage', slug: 'guides/basic-usage' },
+				{ label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
+			],
+		},
+		// TODO: Uncomment this section when Stage 6 is implemented
 			// {
 			// 	label: 'Reference',
 			// 	items: [
