@@ -439,6 +439,8 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
       success: () => {
         get().removePendingOperation(operationId);
         get().markNodePending(fullPath, false);
+        // Focus the newly created file
+        get().setActiveFile(fullPath);
         // Refresh parent folder to get real metadata from backend
         get().refreshNode(parentPath);
         return `Created ${fileName}`;

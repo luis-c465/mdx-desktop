@@ -18,6 +18,7 @@ export function MainContent() {
   const resetEditor = useEditorStore((state) => state.resetEditor);
   const currentPath = useEditorStore((state) => state.currentPath);
   const cancelAutoSave = useEditorStore((state) => state.cancelAutoSave);
+  const focusEditor = useEditorStore((state) => state.focusEditor);
   
   const previousPathRef = useRef<string | null>(null);
 
@@ -75,12 +76,18 @@ export function MainContent() {
       const fileSize = node?.size || null;
 
       // Load the new file
-      await loadFile(activePath, fileSize);
+      const loaded = await loadFile(activePath, fileSize);
+      
+      // Focus the editor after successfully loading the file
+      if (loaded) {
+        focusEditor();
+      }
+      
       previousPathRef.current = activePath;
     };
 
     handleFileSwitch();
-  }, [activePath, isDirty, currentPath, nodes, loadFile, saveFile, resetEditor, cancelAutoSave]);
+  }, [activePath, isDirty, currentPath, nodes, loadFile, saveFile, resetEditor, cancelAutoSave, focusEditor]);
 
   // Show empty state when no file selected
   if (!activePath) {

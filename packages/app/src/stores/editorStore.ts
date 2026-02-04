@@ -6,6 +6,8 @@ import { create } from "zustand";
 import { readFile, writeFile } from "../lib/api";
 import { toast } from "sonner";
 import { EDITOR_CONFIG } from "../config/editor";
+import type { RefObject } from "react";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 
 interface EditorStore {
   /** Current file path being edited */
@@ -46,6 +48,19 @@ interface EditorStore {
   
   /** Show deletion modal when file deleted externally (unused - kept for DeletionModal component) */
   showDeletionModal: boolean;
+
+  /** Reference to the MDXEditor instance for programmatic control */
+  editorRef: RefObject<MDXEditorMethods | null> | null;
+
+  /**
+   * Set the editor ref (called by MarkdownEditor component on mount)
+   */
+  setEditorRef: (ref: RefObject<MDXEditorMethods | null>) => void;
+
+  /**
+   * Focus the editor programmatically
+   */
+  focusEditor: () => void;
 
   /**
    * Load file content from disk
@@ -119,6 +134,24 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   showConflictModal: false,
   conflictFilePath: null,
   showDeletionModal: false,
+  editorRef: null,
+
+  setEditorRef: (ref: RefObject<MDXEditorMethods | null>) => {
+    set({ editorRef: ref });
+  },
+
+  focusEditor: () => {
+    const { editorRef } = get();
+    if (editorRef?.current) {
+      // Focus at the end of the document with a small delay to ensure content is loaded
+      setTimeout(() => {
+        editorRef.current?.focus(undefined, { 
+          defaultSelection: 'rootEnd',
+          preventScroll: false 
+        });
+      }, 0);
+    }
+  },
 
   loadFile: async (path: string, size: number | null = null) => {
     // If file size provided and exceeds limit, warn user

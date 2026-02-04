@@ -34,9 +34,15 @@ import { oneDark } from "@codemirror/theme-one-dark";
 export function MarkdownEditor() {
   const content = useEditorStore((state) => state.content);
   const updateContent = useEditorStore((state) => state.updateContent);
+  const setEditorRef = useEditorStore((state) => state.setEditorRef);
   const editorRef = useRef<MDXEditorMethods>(null);
   const theme = useThemeStore((state) => state.theme);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Register editor ref with store on mount
+  useEffect(() => {
+    setEditorRef(editorRef);
+  }, [setEditorRef]);
 
   // Detect effective dark mode
   useEffect(() => {
