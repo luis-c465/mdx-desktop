@@ -21,18 +21,18 @@ pub fn run() {
                 .app_data_dir()
                 .map(|p: PathBuf| p.join("config.json"))
                 .unwrap_or_else(|_| PathBuf::from("config.json"));
-            
+
             // Initialize state
             let state = AppState::new(config_path);
-            
+
             // Load saved configuration
             if let Err(e) = state.load() {
                 eprintln!("Warning: Failed to load config: {}", e);
             }
-            
+
             // Make state available to all commands
             app.manage(state);
-            
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
