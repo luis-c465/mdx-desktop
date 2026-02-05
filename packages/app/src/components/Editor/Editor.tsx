@@ -14,8 +14,10 @@ export function Editor() {
   const manualSave = useEditorStore((state) => state.manualSave);
 
   // Keyboard shortcut: Ctrl/Cmd+S to save
+  // Note: Ctrl/Cmd+F and Ctrl/Cmd+H are now handled by FindBarWrapper
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd+S: Save
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
         manualSave();

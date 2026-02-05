@@ -15,6 +15,7 @@ import {
   tablePlugin,
   codeBlockPlugin,
   codeMirrorPlugin,
+  searchPlugin,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
@@ -24,14 +25,21 @@ import {
   InsertCodeBlock,
   ListsToggle,
   Separator,
+  realmPlugin,
+  addTopAreaChild$,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { useEditorStore } from "../../stores/editorStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { useRef, useEffect, useState, useMemo } from "react";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { FindBarWrapper } from "./FindBarWrapper";
 
-export function MarkdownEditor() {
+interface MarkdownEditorProps {
+  // Props removed - FindBarWrapper manages its own state now
+}
+
+export function MarkdownEditor({}: MarkdownEditorProps = {}) {
   const content = useEditorStore((state) => state.content);
   const updateContent = useEditorStore((state) => state.updateContent);
   const setEditorRef = useEditorStore((state) => state.setEditorRef);
@@ -104,6 +112,16 @@ export function MarkdownEditor() {
       codeMirrorExtensions: isDarkMode ? [oneDark] : [],
     }),
     
+    // Search/find functionality
+    searchPlugin(),
+    
+    // FindBar plugin - adds the search widget to top area
+    realmPlugin({
+      init: (realm) => {
+        realm.pub(addTopAreaChild$, FindBarWrapper);
+      },
+    })(),
+    
     // Toolbar with common formatting options
     toolbarPlugin({
       toolbarContents: () => (
@@ -131,7 +149,7 @@ export function MarkdownEditor() {
   }
 
   return (
-    <div className="h-full w-full overflow-auto">
+    <div className="h-full w-full overflow-auto relative">
       <MDXEditor
         ref={editorRef}
         markdown={content}
