@@ -3,7 +3,7 @@
  * Uses MDXEditor's searchPlugin and useEditorSearch hook
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useEditorSearch } from "@mdxeditor/editor";
 import { Button } from "../ui/button";
 import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
@@ -28,13 +28,27 @@ export function FindBar({ isOpen, mode, onClose }: FindBarProps) {
   } = useEditorSearch();
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [localSearchValue, setLocalSearchValue] = useState("");
   const [replaceValue, setReplaceValue] = useState("");
   const [showReplace, setShowReplace] = useState(mode === "replace");
+  const debounceTimerRef = useRef<number | null>(null);
+  const isInitialMount = useRef(true);
 
   // Sync mode prop to internal state
   useEffect(() => {
     setShowReplace(mode === "replace");
   }, [mode]);
+
+  // Initialize local search value when widget opens
+  useEffect(() => {
+    if (isOpen && isInitialMount.current) {
+      setLocalSearchValue(search);
+      isInitialMount.current = false;
+    }
+    if (!isOpen) {
+      isInitialMount.current = true;
+    }
+  }, [isOpen, search]);
 
   // Focus search input when opened
   useEffect(() => {
@@ -43,6 +57,36 @@ export function FindBar({ isOpen, mode, onClose }: FindBarProps) {
       searchInputRef.current?.select();
     }
   }, [isOpen]);
+
+  // Debounced search handler
+  const handleSearchChange = useCallback((value: string) => {
+    setLocalSearchValue(value);
+
+    // Clear existing timer
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+
+    // If clearing the search (empty string), update immediately to clear highlights
+    if (value === "") {
+      setSearch("");
+      return;
+    }
+
+    // Set new timer - only update actual search after user stops typing
+    debounceTimerRef.current = window.setTimeout(() => {
+      setSearch(value);
+    }, 100); // 150ms debounce - fast enough to feel instant, slow enough to skip intermediate searches
+  }, [setSearch]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -65,6 +109,14 @@ export function FindBar({ isOpen, mode, onClose }: FindBarProps) {
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
+
+      // If there's a pending debounce, execute search immediately
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+        setSearch(localSearchValue);
+      }
+
+      // Then navigate
       if (e.shiftKey) {
         prev();
       } else {
@@ -97,8 +149,8 @@ export function FindBar({ isOpen, mode, onClose }: FindBarProps) {
           <input
             ref={searchInputRef}
             type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={localSearchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
             onKeyDown={handleSearchKeyDown}
             placeholder="Find"
             className="w-full pl-8 pr-3 py-1.5 text-sm border border-input rounded bg-background focus:outline-none focus:ring-2 focus:ring-ring"
@@ -131,8 +183,8 @@ export function FindBar({ isOpen, mode, onClose }: FindBarProps) {
 
         {/* Match counter */}
         <div className="text-xs text-muted-foreground min-w-[60px] text-center">
-          {search && total === 0 && "No results"}
-          {search && total > 0 && `${cursor} of ${total}`}
+          {localSearchValue && total === 0 && "No results"}
+          {localSearchValue && total > 0 && `${cursor} of ${total}`}
         </div>
 
         {/* Toggle replace button */}
