@@ -236,8 +236,8 @@ export function FileTreeVirtualized() {
     );
   }
 
-  // Empty state
-  if (nodes.length === 0 && !isLoading) {
+  // Empty state (but not when inline creation is active)
+  if (nodes.length === 0 && !isLoading && !creationState) {
     return (
       <div className="flex items-center justify-center p-8 text-center">
         <p className="text-sm text-muted-foreground">
