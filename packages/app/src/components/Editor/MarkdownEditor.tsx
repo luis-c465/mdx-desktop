@@ -33,6 +33,16 @@ import { useEditorStore } from "../../stores/editorStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { useRef, useEffect, useState, useMemo } from "react";
 import { oneDark } from "@codemirror/theme-one-dark";
+import {
+  sql,
+  StandardSQL,
+  PostgreSQL,
+  MySQL,
+  MSSQL,
+  SQLite,
+  PLSQL,
+} from "@codemirror/lang-sql";
+import { graphql } from "cm6-graphql";
 import { FindBarWrapper } from "./FindBarWrapper";
 
 interface MarkdownEditorProps {
@@ -93,23 +103,48 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     tablePlugin(),
     
     // Code blocks with syntax highlighting
-    codeBlockPlugin({ defaultCodeBlockLanguage: "js" }),
+    codeBlockPlugin({ defaultCodeBlockLanguage: "sql" }),
     codeMirrorPlugin({
       codeBlockLanguages: {
+        // Programming languages
         js: "JavaScript",
         ts: "TypeScript",
         tsx: "TypeScript (React)",
         jsx: "JavaScript (React)",
-        css: "CSS",
-        html: "HTML",
-        json: "JSON",
-        md: "Markdown",
-        bash: "Bash",
-        sh: "Shell",
         python: "Python",
         rust: "Rust",
+        
+        // Markup & data
+        html: "HTML",
+        css: "CSS",
+        json: "JSON",
+        md: "Markdown",
+        graphql: "GraphQL",
+        
+        // Shell
+        bash: "Bash",
+        sh: "Shell",
+        
+        // SQL dialects
+        sql: "SQL",
+        postgres: "PostgreSQL",
+        mysql: "MySQL",
+        tsql: "T-SQL",
+        sqlite: "SQLite",
+        plsql: "PL/SQL",
       },
-      codeMirrorExtensions: isDarkMode ? [oneDark] : [],
+      codeMirrorExtensions: [
+        ...(isDarkMode ? [oneDark] : []),
+        // SQL dialect extensions
+        sql({ dialect: StandardSQL }),
+        sql({ dialect: PostgreSQL }),
+        sql({ dialect: MySQL }),
+        sql({ dialect: MSSQL }),
+        sql({ dialect: SQLite }),
+        sql({ dialect: PLSQL }),
+        // GraphQL extension
+        graphql(),
+      ],
     }),
     
     // Search/find functionality
