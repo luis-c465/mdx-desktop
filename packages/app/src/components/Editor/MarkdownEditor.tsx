@@ -17,16 +17,27 @@ import {
   codeMirrorPlugin,
   searchPlugin,
   toolbarPlugin,
+  diffSourcePlugin,
+  frontmatterPlugin,
+  directivesPlugin,
+  AdmonitionDirectiveDescriptor,
   UndoRedo,
   BoldItalicUnderlineToggles,
   BlockTypeSelect,
   CreateLink,
   InsertTable,
   InsertCodeBlock,
+  InsertThematicBreak,
+  InsertFrontmatter,
+  InsertAdmonition,
   ListsToggle,
   Separator,
   realmPlugin,
   addTopAreaChild$,
+  viewMode$,
+  useCellValue,
+  usePublisher,
+  ButtonWithTooltip,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { useEditorStore } from "../../stores/editorStore";
@@ -44,6 +55,41 @@ import {
 } from "@codemirror/lang-sql";
 import { graphql } from "cm6-graphql";
 import { FindBarWrapper } from "./FindBarWrapper";
+
+/**
+ * Custom source mode toggle that only toggles between rich-text and source
+ * (excludes diff mode)
+ */
+function SourceOnlyToggle() {
+  const viewMode = useCellValue(viewMode$);
+  const setViewMode = usePublisher(viewMode$);
+
+  return (
+    <ButtonWithTooltip
+      title="Toggle Source Mode"
+      onClick={() => {
+        // Toggle only between 'rich-text' and 'source' (skip 'diff')
+        setViewMode(viewMode === 'source' ? 'rich-text' : 'source');
+      }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    </ButtonWithTooltip>
+  );
+}
+
 
 interface MarkdownEditorProps {
   // Props removed - FindBarWrapper manages its own state now
@@ -101,6 +147,21 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     
     // Table support
     tablePlugin(),
+    
+    // Source mode toggle (diff mode disabled)
+    diffSourcePlugin({
+      viewMode: 'rich-text',  // Start in WYSIWYG mode
+      diffMarkdown: '',        // No diff comparison
+      readOnlyDiff: true,      // Make diff mode read-only (discourages use)
+    }),
+    
+    // Front-matter support for metadata
+    frontmatterPlugin(),
+    
+    // Directives (admonitions/callouts)
+    directivesPlugin({
+      directiveDescriptors: [AdmonitionDirectiveDescriptor],
+    }),
     
     // Code blocks with syntax highlighting
     codeBlockPlugin({ defaultCodeBlockLanguage: "sql" }),
@@ -161,19 +222,39 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     toolbarPlugin({
       toolbarContents: () => (
         <>
+          {/* Source mode toggle */}
+          <SourceOnlyToggle />
+          <Separator />
+          
+          {/* Core editing */}
           <UndoRedo />
           <Separator />
+          
+          {/* Text formatting */}
           <BoldItalicUnderlineToggles />
           <Separator />
+          
+          {/* Block types */}
           <BlockTypeSelect />
           <Separator />
+          
+          {/* Links */}
           <CreateLink />
           <Separator />
+          
+          {/* Lists */}
           <ListsToggle />
           <Separator />
+          
+          {/* Structure elements */}
           <InsertTable />
-          <Separator />
           <InsertCodeBlock />
+          <InsertThematicBreak />
+          <Separator />
+          
+          {/* Metadata & callouts */}
+          <InsertFrontmatter />
+          <InsertAdmonition />
         </>
       ),
     }),
