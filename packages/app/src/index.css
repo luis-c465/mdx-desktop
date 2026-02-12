@@ -234,6 +234,43 @@
   color: var(--primary);
 }
 
+/* List styles - ensure markers are visible */
+.prose :where(ul):not(:where([class~="not-prose"] *)) {
+  list-style-type: disc;
+  padding-left: 1.625em;
+}
+
+.prose :where(ol):not(:where([class~="not-prose"] *)) {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+}
+
+.prose :where(li):not(:where([class~="not-prose"] *)) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :where(ul > li):not(:where([class~="not-prose"] *))::marker {
+  color: var(--foreground);
+}
+
+.prose :where(ol > li):not(:where([class~="not-prose"] *))::marker {
+  color: var(--foreground);
+}
+
+/* Nested lists */
+.prose :where(ul ul, ul ol, ol ul, ol ol):not(:where([class~="not-prose"] *)) {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+/* Task lists (checkboxes) */
+.prose :where(input[type="checkbox"]):not(:where([class~="not-prose"] *)) {
+  color: var(--primary);
+  cursor: pointer;
+  margin-right: 0.5em;
+}
+
 /* CodeMirror and Code Block Toolbar Dark Mode Fixes */
 
 /* 1. CodeMirror Tooltips and Panels (Language selector, etc.) */
