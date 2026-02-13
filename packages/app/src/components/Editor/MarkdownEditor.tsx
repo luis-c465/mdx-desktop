@@ -12,6 +12,7 @@ import {
   markdownShortcutPlugin,
   linkPlugin,
   linkDialogPlugin,
+  imagePlugin,
   tablePlugin,
   codeBlockPlugin,
   codeMirrorPlugin,
@@ -42,6 +43,8 @@ import {
 import "@mdxeditor/editor/style.css";
 import { useEditorStore } from "../../stores/editorStore";
 import { useThemeStore } from "../../stores/themeStore";
+import { uploadImage } from "../../lib/api";
+import { toast } from "sonner";
 import { useRef, useEffect, useState, useMemo } from "react";
 import { oneDark } from "@codemirror/theme-one-dark";
 import {
@@ -133,6 +136,20 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     }
   }, [content]);
 
+  // Image upload handler for paste/drop
+  const imageUploadHandler = async (file: File): Promise<string> => {
+    try {
+      const assetUrl = await uploadImage(file);
+      toast.success("Image uploaded successfully");
+      return assetUrl;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload image";
+      toast.error(errorMessage);
+      throw error;
+    }
+  };
+
   const plugins = useMemo(() => [
     // Core plugins
     headingsPlugin(),
@@ -144,6 +161,11 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     // Link plugin with dialog
     linkPlugin(),
     linkDialogPlugin(),
+    
+    // Image plugin with upload handler
+    imagePlugin({
+      imageUploadHandler,
+    }),
     
     // Table support
     tablePlugin(),

@@ -14,6 +14,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
             // Determine config file path (use app data directory)
             let config_path = app
@@ -39,9 +40,9 @@ pub fn run() {
             // File operations
             commands::read_file,
             commands::write_file,
-            commands::create_file_command,
             commands::rename_path_command,
             commands::delete_path_command,
+            commands::upload_image,
             // Directory operations
             commands::create_folder_command,
             commands::read_directory,

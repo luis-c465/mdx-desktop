@@ -4,6 +4,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import type { FileNode, DirectoryPage } from "../types";
 
 /**
@@ -201,5 +202,42 @@ export async function clearWorkspace(): Promise<void> {
   } catch (error) {
     console.error("Failed to clear workspace:", error);
     throw new Error(`Failed to clear workspace: ${error}`);
+  }
+}
+
+/**
+ * Upload an image file to the workspace
+ * @param file Image file to upload
+ * @returns Asset URL that can be used in markdown
+ * @throws Error if no workspace is open, unsupported format, or upload fails
+ */
+export async function uploadImage(file: File): Promise<string> {
+  try {
+    // Convert File to byte array
+    const arrayBuffer = await file.arrayBuffer();
+    const bytes = Array.from(new Uint8Array(arrayBuffer));
+    
+    // Call Tauri command to save image and get relative path
+    const relativePath = await invoke<string>("upload_image", {
+      filename: file.name,
+      data: bytes,
+    });
+    
+    // Get workspace path
+    const workspacePath = await getWorkspace();
+    if (!workspacePath) {
+      throw new Error("No workspace open");
+    }
+    
+    // Convert to absolute path
+    const absolutePath = `${workspacePath}/${relativePath}`;
+    
+    // Convert to asset:// URL for secure rendering
+    const assetUrl = convertFileSrc(absolutePath);
+    
+    return assetUrl;
+  } catch (error) {
+    console.error("Failed to upload image:", error);
+    throw new Error(formatApiError(error));
   }
 }

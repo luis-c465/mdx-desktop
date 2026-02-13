@@ -107,6 +107,49 @@ pub async fn write_file_atomic(path: &Path, content: &str) -> Result<()> {
     }
 }
 
+/// Write binary data to a file atomically using a temporary file
+/// 
+/// # Arguments
+/// 
+/// * `path` - The target file path
+/// * `data` - The binary data to write
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - If write succeeded
+/// * `Err(AppError)` - If write failed
+/// 
+/// # Implementation
+/// 
+/// Uses atomic write pattern:
+/// 1. Write to temporary file {path}.tmp
+/// 2. Atomically rename temp file to target
+/// 3. Clean up temp file on error
+pub async fn write_file_binary(path: &Path, data: &[u8]) -> Result<()> {
+    let temp_path = {
+        let file_name = path.file_name()
+            .and_then(|n| n.to_str())
+            .ok_or_else(|| AppError::InvalidPath("Invalid file name".into()))?;
+        path.with_file_name(format!("{}.tmp", file_name))
+    };
+    
+    // Write to temp file
+    let mut file = fs::File::create(&temp_path).await?;
+    file.write_all(data).await?;
+    file.sync_all().await?;
+    drop(file);
+    
+    // Atomic rename
+    match fs::rename(&temp_path, path).await {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            // Clean up temp file on error
+            let _ = fs::remove_file(&temp_path).await;
+            Err(e.into())
+        }
+    }
+}
+
 /// Create a new empty file
 /// 
 /// # Arguments
