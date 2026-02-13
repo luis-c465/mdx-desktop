@@ -95,8 +95,8 @@ Deleted files are sent to your system's trash/recycle bin, but be careful! Alway
 
 MDX Desktop supports all standard markdown syntax:
 
-**Bold text**: `**bold**` or use the toolbar button  
-*Italic text*: `*italic*` or use the toolbar button  
+**Bold text**: `**bold**` or use the toolbar button
+*Italic text*: `*italic*` or use the toolbar button
 `Code`: `` `code` `` or use the toolbar button
 
 ### Headings
@@ -127,7 +127,7 @@ Or use `Ctrl/Cmd + 1`, `Ctrl/Cmd + 2`, `Ctrl/Cmd + 3`
 
 ### Links and Images
 
-**Link**: `[Link text](https://example.com)`  
+**Link**: `[Link text](https://example.com)`
 **Image**: `![Alt text](./image.png)`
 
 ### Code Blocks
@@ -141,37 +141,6 @@ function hello() {
 }
 ```
 ````
-
-## Basic Workflow
-
-A typical editing session looks like this:
-
-1. **Open folder** with your markdown files
-2. **Navigate** the file tree to find the file you want to edit
-3. **Click the file** to open it in the editor
-4. **Make your changes** - auto-save handles the rest
-5. **Switch files** by clicking another file in the tree
-6. **Create new files** as needed using right-click or keyboard shortcuts
-7. **Close MDX Desktop** when done - all changes are saved automatically
-
-## Working with Large Projects
-
-If you're working with a large collection of markdown files:
-
-- **Folders load lazily**: Expand folders to load their contents
-- **Large projects**: Navigate efficiently through thousands of files
-- **Pagination**: Folders with 1000+ files load in pages of 500
-- **Performance**: MDX Desktop handles 10,000+ files efficiently
-
-## External File Changes
-
-If files change outside of MDX Desktop (e.g., git pull, another editor):
-
-1. MDX Desktop **detects the changes automatically**
-2. A **notification appears** in the status bar
-3. **Reload the file** if you want to see the latest content
-4. If you have unsaved changes, you'll be prompted to choose which version to keep
-
 ## Next Steps
 
 Now that you know the basics, explore more features:
