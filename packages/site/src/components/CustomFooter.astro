@@ -49,6 +49,9 @@
   
   <div class="footer-bottom">
     <p>&copy; 2026 MDX Desktop. All rights reserved.</p>
+    <p class="powered-by">
+      Powered by <a href="https://mdxeditor.dev/" target="_blank" rel="noopener noreferrer">MDX Editor</a>
+    </p>
   </div>
 </footer>
 
@@ -123,6 +126,21 @@
     margin: 0;
     color: var(--sl-color-gray-3);
     font-size: 0.875rem;
+  }
+  
+  .powered-by {
+    margin-top: 0.5rem !important;
+  }
+  
+  .powered-by a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .powered-by a:hover {
+    color: var(--sl-color-white);
+    text-decoration: underline;
   }
   
   @media (max-width: 768px) {

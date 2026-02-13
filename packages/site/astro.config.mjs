@@ -10,13 +10,13 @@ import react from '@astrojs/react';
 export default defineConfig({
   integrations: [starlight({
       title: 'MDX Desktop',
-      description: 'A native desktop markdown editor built for performance. Edit 1000+ files with ease.',
+      description: 'A native desktop markdown editor built for performance',
       customCss: ['./src/styles/global.css'],
       social: [
-          { 
-              icon: 'github', 
-              label: 'GitHub Repository', 
-              href: 'https://github.com/luis-c465/mdx-desktop' 
+          {
+              icon: 'github',
+              label: 'GitHub Repository',
+              href: 'https://github.com/luis-c465/mdx-desktop'
           }
       ],
   sidebar: [
