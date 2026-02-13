@@ -236,8 +236,27 @@ The editor currently supports:
 - Auto-save with atomic file operations
 - Multiple file editing with quick switching
 
+## Editor Plugins
+
+The markdown editor is powered by 17 built-in plugins that provide rich formatting, code highlighting, image support, search functionality, and more. These plugins work together seamlessly to deliver a complete editing experience.
+
+To learn about all available features and capabilities, see the [Editor Plugins](/features/plugins/) documentation.
+
+**Highlighted features**:
+- **18 programming languages** with syntax highlighting
+- **Image upload** with paste, drag-and-drop, and file browser support
+- **Find and replace** with keyboard shortcuts
+- **Front matter support** for YAML metadata
+- **Admonitions** for callouts and notes
+- **Tables** with full editing capabilities
+
+:::tip[Working with Images]
+The image plugin has special behaviors and important caveats you should understand. Check out the [Working with Images](/features/images/) guide for complete details.
+:::
+
 ## Related Documentation
 
+- [Editor Plugins](/features/plugins/) - Complete list of editing features and capabilities
+- [Working with Images](/features/images/) - Image insertion, management, and troubleshooting
 - [File Management](/features/file-management/) - Working with multiple files
-- [Keyboard Shortcuts](/guides/keyboard-shortcuts/) - Complete shortcut reference
 - [Basic Usage](/guides/basic-usage/) - Workflow examples

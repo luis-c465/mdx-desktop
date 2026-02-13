@@ -380,7 +380,6 @@ Avoid: `/ \ : * ? " < > |` and excessive spaces.
 
 Now that you understand basic workflows:
 
-- **Master keyboard shortcuts**: [Keyboard Shortcuts](/guides/keyboard-shortcuts/)
 - **Learn editor features**: [Markdown Editor](/features/editor/)
 - **Optimize file management**: [File Management](/features/file-management/)
 

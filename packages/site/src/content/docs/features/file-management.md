@@ -256,5 +256,4 @@ notes/
 
 - [Markdown Editor](/features/editor/) - Editing file content
 - [Quick Start](/getting-started/quick-start/) - Basic file operations walkthrough
-- [Keyboard Shortcuts](/guides/keyboard-shortcuts/) - Complete shortcut reference
 - [Basic Usage](/guides/basic-usage/) - Workflow examples

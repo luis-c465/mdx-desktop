@@ -31,6 +31,8 @@ export default defineConfig({
       label: 'Features',
       items: [
           { label: 'Markdown Editor', slug: 'features/editor' },
+          { label: 'Editor Plugins', slug: 'features/plugins' },
+          { label: 'Working with Images', slug: 'features/images' },
           { label: 'File Management', slug: 'features/file-management' },
       ],
   },
@@ -38,7 +40,6 @@ export default defineConfig({
       label: 'Guides',
       items: [
           { label: 'Basic Usage', slug: 'guides/basic-usage' },
-          { label: 'Keyboard Shortcuts', slug: 'guides/keyboard-shortcuts' },
       ],
   },
   // TODO: Uncomment this section when Stage 6 is implemented

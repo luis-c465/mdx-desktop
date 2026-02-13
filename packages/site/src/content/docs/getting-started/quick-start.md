@@ -178,7 +178,6 @@ Now that you know the basics, explore more features:
 
 - [Markdown Editor Features](/features/editor/) - Learn about the editor's capabilities
 - [File Management](/features/file-management/) - Advanced file tree operations
-- [Keyboard Shortcuts](/guides/keyboard-shortcuts/) - Work faster with hotkeys
 - [Basic Usage Guide](/guides/basic-usage/) - Detailed workflow examples
 
 :::tip[Pro Tip]

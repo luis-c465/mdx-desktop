@@ -131,5 +131,4 @@ For more help, [open an issue](https://github.com/luis-c465/mdx-desktop/issues) 
 ## Next Steps
 
 - [Quick Start Guide](/getting-started/quick-start/) - Learn the basics
-- [Keyboard Shortcuts](/guides/keyboard-shortcuts/) - Work more efficiently
 - [FAQ](/reference/faq/) - Common questions answered
