@@ -7,18 +7,35 @@ hero:
   image:
     file: ../../assets/icon.png
     alt: MDX Desktop application icon
-  actions:
-    - text: Download Now
-      link: https://github.com/luis-c465/mdx-desktop/releases/latest
-      icon: download
-      variant: primary
-    - text: Get Started
-      link: /getting-started/installation/
-      icon: right-arrow
-      variant: secondary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import DownloadButton from '../../components/DownloadButton';
+
+<div style={{display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', margin: '2rem 0'}}>
+  <DownloadButton client:load />
+  <a 
+    href="/getting-started/installation/" 
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.5rem',
+      borderRadius: '0.5rem',
+      fontWeight: 600,
+      textDecoration: 'none',
+      background: 'var(--sl-color-gray-6)',
+      color: 'var(--sl-color-white)',
+      transition: 'all 0.2s'
+    }}
+  >
+    <span>Get Started</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <polyline points="12 5 19 12 12 19"></polyline>
+    </svg>
+  </a>
+</div>
 
 ## Built for Performance at Scale
 
