@@ -5,7 +5,7 @@
 /// spawn_blocking for non-blocking I/O.
 
 use crate::error::{AppError, Result};
-use crate::fs::{validate_path_with_state, read_file_content, write_file_atomic, write_file_binary, rename_path, delete_path};
+use crate::fs::{validate_path_with_state, read_file_content, write_file_atomic, write_file_binary, create_file, rename_path, delete_path};
 use crate::state::AppState;
 use chrono::{Datelike, Utc};
 
@@ -79,6 +79,43 @@ pub async fn write_file(
     tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(async {
             write_file_atomic(&validated_path, &content).await
+        })
+    })
+    .await
+    .map_err(|e| AppError::IoError(format!("Task execution failed: {}", e)))??;
+    
+    Ok(())
+}
+
+/// Create a new empty file
+/// 
+/// # Arguments
+/// 
+/// * `state` - Application state (injected by Tauri)
+/// * `path` - Relative path for the new file (relative to workspace)
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` - If file created successfully
+/// * `Err(AppError)` - If no workspace is open, file already exists, or permission denied
+/// 
+/// # Example (from frontend)
+/// 
+/// ```javascript
+/// await invoke('create_file_command', { path: 'notes/new-note.md' })
+/// ```
+#[tauri::command]
+pub async fn create_file_command(
+    state: tauri::State<'_, AppState>,
+    path: String,
+) -> Result<()> {
+    // Validate path against workspace
+    let validated_path = validate_path_with_state(&state, &path)?;
+    
+    // Run file I/O on blocking thread pool
+    tokio::task::spawn_blocking(move || {
+        tokio::runtime::Handle::current().block_on(async {
+            create_file(&validated_path).await
         })
     })
     .await

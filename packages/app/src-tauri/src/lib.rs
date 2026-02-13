@@ -40,6 +40,7 @@ pub fn run() {
             // File operations
             commands::read_file,
             commands::write_file,
+            commands::create_file_command,
             commands::rename_path_command,
             commands::delete_path_command,
             commands::upload_image,
