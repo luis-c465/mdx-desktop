@@ -13,15 +13,14 @@ The file tree is displayed in the left sidebar and provides:
 - **Lazy loading**: Only loads content as you need it for optimal performance
 - **Smooth scrolling**: Navigate large folder structures easily
 - **Context menu**: Right-click for quick file operations
-- **Keyboard navigation**: Navigate without touching the mouse
 
-{/* TODO: Add file tree screenshot here */}
+{/* TODO: Add file tree screenshot here - showing the sidebar with folder structure, expanded folders, and file list */}
 
 ## Opening a Folder
 
 To start working with files, you need to open a folder:
 
-1. Click **"Open Folder"** button or use `Ctrl/Cmd + O`
+1. Click the **"Open Folder"** button in the interface
 2. System file picker appears
 3. Select the folder containing your markdown files
 4. File tree populates with the folder contents
@@ -36,45 +35,24 @@ Open the **root folder** of your markdown project, not individual files. MDX Des
 
 - **Click the arrow icon** (►) next to a folder to expand it
 - **Click again** to collapse the folder
-- **Keyboard**: Use `→` to expand, `←` to collapse
 
 Folder contents are loaded when you expand them, keeping initial load times fast.
 
 ### Opening Files
 
-- **Single click** a file to open it in the editor
+- **Click a file** to open it in the editor
 - **File activates** immediately, previous file is saved automatically
 - **No "unsaved changes" prompts**: Auto-save handles everything seamlessly
-
-### Keyboard Navigation
-
-| Action | Keyboard Shortcut |
-|--------|-------------------|
-| Move up | `↑` or `K` |
-| Move down | `↓` or `J` |
-| Expand folder | `→` or `L` |
-| Collapse folder | `←` or `H` |
-| Open selected file | `Enter` |
-| Go to parent folder | `Backspace` |
-
-:::tip[Vim-style Navigation]
-Use `J` and `K` for up/down if you prefer Vim-style key bindings!
-:::
 
 ## File Operations
 
 ### Creating New Files
 
-**Method 1: Context Menu**
-1. Right-click on a folder
-2. Select **"New File"**
+1. Right-click on a folder in the file tree
+2. Select **"New File"** from the context menu
 3. Type the filename (include `.md` extension)
-4. Press `Enter`
-
-**Method 2: Keyboard Shortcut**
-- Press `Ctrl/Cmd + N`
-- File is created in the currently selected folder
-- File opens automatically in the editor
+4. Press `Enter` to create
+5. File opens automatically in the editor
 
 **Naming conventions**:
 - Use `.md` or `.markdown` extensions
@@ -86,23 +64,14 @@ Use `J` and `K` for up/down if you prefer Vim-style key bindings!
 1. Right-click in the file tree
 2. Select **"New Folder"**
 3. Type the folder name
-4. Press `Enter`
-
-**Keyboard shortcut**: `Ctrl/Cmd + Shift + N`
+4. Press `Enter` to create
 
 ### Renaming Files and Folders
 
-**Method 1: Context Menu**
 1. Right-click the file or folder
-2. Select **"Rename"**
+2. Select **"Rename"** from the context menu
 3. Edit the name
 4. Press `Enter` to confirm
-
-**Method 2: Keyboard Shortcut**
-1. Select the file or folder
-2. Press `F2`
-3. Edit the name
-4. Press `Enter`
 
 :::note[Renaming Open Files]
 If you rename a file that's currently open in the editor, it will automatically reload with the new name. Your content is preserved.
@@ -110,23 +79,12 @@ If you rename a file that's currently open in the editor, it will automatically 
 
 ### Deleting Files and Folders
 
-**Method 1: Context Menu**
 1. Right-click the file or folder
-2. Select **"Delete"**
+2. Select **"Delete"** from the context menu
 3. Confirm the deletion in the dialog
 
-**Method 2: Keyboard Shortcut**
-1. Select the file or folder
-2. Press `Delete` or `Backspace`
-3. Confirm the deletion
-
-**Safety features**:
-- Files are sent to system trash/recycle bin (not permanently deleted)
-- Confirmation dialog prevents accidental deletion
-- Protected against deleting files with unsaved changes
-
 :::tip[Recovering Deleted Files]
-Check your system's trash/recycle bin if you accidentally delete a file. Files are not permanently erased.
+After deleting a file, you can press undo in the popup to restore it.
 :::
 
 ## Efficient File Tree Features
@@ -149,23 +107,10 @@ Files and folders have distinct icons:
 - 📂 **Folder** (expanded)
 - 📄 **Markdown file** (`.md`, `.markdown`)
 - 📄 **Text file** (`.txt`)
-- 📄 **Other files** (generic icon)
 
 ### Active File Highlighting
 
 The currently open file is highlighted in the tree:
-
-- **Background color** distinguishes the active file
-- **Automatic scrolling** to keep active file visible
-- **Easy to locate** your current position in projects
-
-### File Metadata Display
-
-Hover over a file to see:
-
-- **Full file path**
-- **File size**
-- **Last modified date**
 
 ### Sorting
 
@@ -180,9 +125,8 @@ Files and folders are sorted automatically:
 Currently, MDX Desktop can open one root folder at a time.
 
 **To switch between projects**:
-1. Close the current folder (`Ctrl/Cmd + W`)
-2. Open a different folder (`Ctrl/Cmd + O`)
-3. Your previous project can be reopened anytime
+1. Use the "Open Folder" button to select a different folder
+2. Your previous project can be reopened anytime
 
 ## Tips for Organizing Files
 
@@ -196,14 +140,12 @@ Currently, MDX Desktop can open one root folder at a time.
 
 Right-click menu options:
 
-| Option | Action | Keyboard Shortcut |
-|--------|--------|-------------------|
-| New File | Create file in folder | `Ctrl/Cmd + N` |
-| New Folder | Create subfolder | `Ctrl/Cmd + Shift + N` |
-| Rename | Rename file/folder | `F2` |
-| Delete | Move to trash | `Delete` |
-| Copy Path | Copy full file path | - |
-| Reveal in File Manager | Open in system file browser | - |
+| Option | Action |
+|--------|--------|
+| New File | Create file in folder |
+| New Folder | Create subfolder |
+| Rename | Rename file/folder |
+| Delete | Delete the file |
 
 ## Best Practices for Large Projects
 
@@ -212,9 +154,8 @@ When working with extensive markdown collections:
 ### Navigation Strategy
 
 1. **Keep folders collapsed** when not actively using them
-2. **Use keyboard shortcuts** for faster navigation
-3. **Organize hierarchically** with clear folder structures
-4. **Use naming conventions** for easy sorting
+2. **Organize hierarchically** with clear folder structures
+3. **Use naming conventions** for easy sorting
 
 ### File Organization
 
