@@ -109,10 +109,10 @@ export default defineConfig({
 			title: 'MDX Desktop',
 			description: 'A native desktop markdown editor built for performance. Edit 1000+ files with ease.',
 			social: [
-				{ 
-					icon: 'github', 
-					label: 'GitHub Repository', 
-					href: 'https://github.com/luis-c465/mdx-desktop' 
+				{
+					icon: 'github',
+					label: 'GitHub Repository',
+					href: 'https://github.com/luis-c465/mdx-desktop'
 				}
 			],
 			sidebar: [
@@ -262,8 +262,8 @@ MDX Desktop is a native desktop application designed to handle large markdown pr
 
 <!-- TODO: Add download section with platform detection -->
 <div class="download-note">
-  <strong>Download:</strong> Pre-release builds coming soon! 
-  <a href="https://github.com/luis-c465/mdx-desktop/releases">Check releases</a> or 
+  <strong>Download:</strong> Pre-release builds coming soon!
+  <a href="https://github.com/luis-c465/mdx-desktop/releases">Check releases</a> or
   <a href="https://github.com/luis-c465/mdx-desktop">build from source</a>.
 </div>
 ```
@@ -291,25 +291,17 @@ MDX Desktop is a native desktop application designed to handle large markdown pr
   <Card title="Lightning Fast" icon="rocket">
     Handle 1000+ markdown files efficiently with lazy loading, virtualization, and parallel file processing. Initial load of 100 files in under 200ms.
   </Card>
-  
+
   <Card title="Native Performance" icon="star">
     Built with Tauri and Rust for native speed and minimal memory footprint. Uses less than 100MB for 10k file trees.
   </Card>
-  
+
   <Card title="Auto-Save" icon="approve-check">
     Never lose work with intelligent 300ms debounced auto-save and atomic file operations. Your changes are always protected.
   </Card>
-  
-  <Card title="Real-time Sync" icon="refresh">
-    File system watcher detects external changes instantly with 100ms debounced notifications. Stay in sync with your team.
-  </Card>
-  
+
   <Card title="Smart Editor" icon="pencil">
     WYSIWYG markdown editing with MDXEditor integration. Format text naturally while maintaining clean markdown syntax.
-  </Card>
-  
-  <Card title="Secure by Design" icon="shield">
-    Path canonicalization and input validation prevent directory traversal attacks. Your files are safe.
   </Card>
 </CardGrid>
 ```
@@ -359,25 +351,25 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
 <CardGrid>
   <Card title="Install MDX Desktop" icon="rocket">
     Download and install MDX Desktop on Windows, macOS, or Linux.
-    
+
     [Installation Guide →](/getting-started/installation/)
   </Card>
-  
+
   <Card title="Learn the Basics" icon="open-book">
     Get up to speed with the fundamentals in just a few minutes.
-    
+
     [Quick Start →](/getting-started/quick-start/)
   </Card>
-  
+
   <Card title="Explore Features" icon="star">
     Discover all the powerful features that make MDX Desktop unique.
-    
+
     [Features →](/features/editor/)
   </Card>
-  
+
   <Card title="Get Help" icon="information">
     Find answers to common questions and troubleshooting tips.
-    
+
     [FAQ →](/reference/faq/)
   </Card>
 </CardGrid>
@@ -420,7 +412,7 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
       <h3>MDX Desktop</h3>
       <p class="footer-tagline">Built with Tauri, React, and Rust</p>
     </div>
-    
+
     <div class="footer-section">
       <h4>Resources</h4>
       <ul>
@@ -441,7 +433,7 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
         </li>
       </ul>
     </div>
-    
+
     <div class="footer-section">
       <h4>Legal</h4>
       <ul>
@@ -453,7 +445,7 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
       </ul>
     </div>
   </div>
-  
+
   <div class="footer-bottom">
     <p>&copy; 2026 MDX Desktop. All rights reserved.</p>
   </div>
@@ -466,7 +458,7 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
     border-top: 1px solid var(--sl-color-gray-5);
     background-color: var(--sl-color-bg);
   }
-  
+
   .footer-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -474,7 +466,7 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 2rem;
   }
-  
+
   .footer-section h3,
   .footer-section h4 {
     margin: 0 0 1rem 0;
@@ -482,34 +474,34 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
     font-size: 1rem;
     font-weight: 600;
   }
-  
+
   .footer-tagline {
     margin: 0;
     color: var(--sl-color-gray-3);
     font-size: 0.875rem;
   }
-  
+
   .footer-section ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  
+
   .footer-section li {
     margin-bottom: 0.5rem;
   }
-  
+
   .footer-section a {
     color: var(--sl-color-gray-2);
     text-decoration: none;
     font-size: 0.875rem;
     transition: color 0.2s;
   }
-  
+
   .footer-section a:hover {
     color: var(--sl-color-white);
   }
-  
+
   .footer-bottom {
     max-width: 1200px;
     margin: 2rem auto 0;
@@ -517,13 +509,13 @@ A clean, distraction-free interface for editing markdown files. Navigate large p
     border-top: 1px solid var(--sl-color-gray-6);
     text-align: center;
   }
-  
+
   .footer-bottom p {
     margin: 0;
     color: var(--sl-color-gray-3);
     font-size: 0.875rem;
   }
-  
+
   @media (max-width: 768px) {
     .footer-container {
       grid-template-columns: 1fr;
@@ -1782,19 +1774,19 @@ Create template files for repeated formats:
 ```markdown
 # Meeting: [TOPIC]
 
-**Date**: [DATE]  
-**Attendees**: [NAMES]  
+**Date**: [DATE]
+**Attendees**: [NAMES]
 
 ## Agenda
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Discussion
 
 ## Action Items
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
 
 ## Next Steps
 ```
@@ -2659,11 +2651,11 @@ use std::path::PathBuf;
 fn validate_path(base_dir: &PathBuf, user_path: &str) -> Result<PathBuf, AppError> {
     let requested = base_dir.join(user_path);
     let canonical = requested.canonicalize()?;
-    
+
     if !canonical.starts_with(base_dir) {
         return Err(AppError::InvalidPath);
     }
-    
+
     Ok(canonical)
 }
 ```
@@ -2675,13 +2667,13 @@ File saves use **temp file + rename** for atomic operations:
 ```rust
 async fn write_file_atomic(path: &Path, content: &str) -> Result<(), AppError> {
     let temp_path = path.with_extension("tmp");
-    
+
     // Write to temp file
     tokio::fs::write(&temp_path, content).await?;
-    
+
     // Atomic rename (never corrupts existing file)
     tokio::fs::rename(&temp_path, path).await?;
-    
+
     Ok(())
 }
 ```
@@ -2758,13 +2750,13 @@ interface FileTreeStore {
   nodes: FileNode[];
   activePath: string | null;
   expandedFolders: Set<string>;
-  
+
   loadDirectory: (path: string) => Promise<void>;
   createNode: (parentPath: string, type: 'file' | 'folder') => Promise<void>;
   renameNode: (oldPath: string, newPath: string) => Promise<void>;
   deleteNode: (path: string) => Promise<void>;
   setActiveFile: (path: string) => void;
-  
+
   // Optimistic updates
   updateNode: (path: string, updater: (node: FileNode) => FileNode) => void;
   removeNode: (path: string) => void;
@@ -2782,7 +2774,7 @@ interface EditorStore {
   content: string;
   isDirty: boolean;
   lastSaved: Date | null;
-  
+
   setContent: (content: string) => void;
   saveFile: () => Promise<void>;
   autoSave: () => void; // Debounced 300ms
@@ -2800,14 +2792,14 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 
 function FileTree({ nodes }: { nodes: FileNode[] }) {
   const parentRef = useRef<HTMLDivElement>(null);
-  
+
   const virtualizer = useVirtualizer({
     count: nodes.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 32, // 32px per row
     overscan: 5, // Render 5 extra items above/below viewport
   });
-  
+
   return (
     <div ref={parentRef} style={{ height: '100%', overflow: 'auto' }}>
       <div style={{ height: virtualizer.getTotalSize() }}>
@@ -2847,7 +2839,7 @@ import { startTransition } from 'react';
 
 async function loadLargeFolder(path: string) {
   const nodes = await invoke('read_directory', { path });
-  
+
   startTransition(() => {
     setNodes(nodes); // Non-blocking update
   });
@@ -2941,11 +2933,11 @@ All paths are validated before file operations:
 ```rust
 fn validate_path(base: &Path, requested: &Path) -> Result<PathBuf> {
     let canonical = requested.canonicalize()?;
-    
+
     if !canonical.starts_with(base) {
         return Err(AppError::InvalidPath);
     }
-    
+
     Ok(canonical)
 }
 ```
