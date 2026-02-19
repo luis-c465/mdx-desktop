@@ -40,31 +40,38 @@ export function flattenTree(
   depth = 0
 ): FlatNode[] {
   const flat: FlatNode[] = [];
-  
-  for (const node of nodes) {
-    const isExpanded = expandedFolders.has(node.path);
-    const hasChildren = !node.is_file && (node.children?.length ?? 0) > 0;
-    
-    // Add current node
+  const stack: Array<{ node: FileNode; depth: number }> = [];
+
+  for (let index = nodes.length - 1; index >= 0; index -= 1) {
+    stack.push({ node: nodes[index], depth });
+  }
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      break;
+    }
+
+    const isExpanded = expandedFolders.has(current.node.path);
+    const hasChildren = !current.node.is_file && (current.node.children?.length ?? 0) > 0;
+
     flat.push({
-      node,
-      depth,
+      node: current.node,
+      depth: current.depth,
       index: flat.length,
       hasChildren,
       isExpanded,
     });
-    
-    // Recursively add children if folder is expanded
-    if (isExpanded && node.children) {
-      const childNodes = flattenTree(node.children, expandedFolders, depth + 1);
-      flat.push(...childNodes);
+
+    if (isExpanded && current.node.children) {
+      for (let index = current.node.children.length - 1; index >= 0; index -= 1) {
+        stack.push({
+          node: current.node.children[index],
+          depth: current.depth + 1,
+        });
+      }
     }
   }
-  
-  // Update indices to be sequential
-  flat.forEach((item, idx) => {
-    item.index = idx;
-  });
-  
+
   return flat;
 }

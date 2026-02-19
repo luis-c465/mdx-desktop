@@ -8,6 +8,7 @@ import { FileText } from "lucide-react";
 import { useFileTreeStore } from "../../stores/fileTreeStore";
 import { useEditorStore } from "../../stores/editorStore";
 import { Editor } from "../Editor";
+import type { FileNode } from "../../types";
 
 export function MainContent() {
   const activePath = useFileTreeStore((state) => state.activePath);
@@ -24,7 +25,7 @@ export function MainContent() {
   const previousPathRef = useRef<string | null>(null);
 
   // Helper function to find node by path
-  const findNodeByPath = (nodes: any[], path: string): any => {
+  const findNodeByPath = (nodes: FileNode[], path: string): FileNode | null => {
     for (const node of nodes) {
       if (node.path === path) {
         return node;
@@ -37,11 +38,23 @@ export function MainContent() {
     return null;
   };
 
+  const activeNode = activePath ? findNodeByPath(nodes, activePath) : null;
+  const isActiveMarkdownFile = Boolean(
+    activeNode && activeNode.is_file && (activeNode.path.endsWith(".md") || activeNode.path.endsWith(".mdx"))
+  );
+
   // Handle file switching with auto-save
   useEffect(() => {
     const handleFileSwitch = async () => {
       // If activePath hasn't changed, do nothing
       if (activePath === previousPathRef.current) {
+        return;
+      }
+
+      // Active path can become stale after workspace switches or deletes
+      if (activePath && !activeNode) {
+        setActiveFile(null);
+        previousPathRef.current = null;
         return;
       }
 
@@ -63,7 +76,7 @@ export function MainContent() {
       }
 
       // Check if it's a markdown file
-      const isMarkdown = activePath.endsWith('.md') || activePath.endsWith('.mdx');
+      const isMarkdown = Boolean(activeNode?.is_file) && (activePath.endsWith('.md') || activePath.endsWith('.mdx'));
       if (!isMarkdown) {
         // This shouldn't happen since we filter, but just in case
         previousPathRef.current = activePath;
@@ -83,8 +96,7 @@ export function MainContent() {
       }
 
       // Find the node to get file size
-      const node = findNodeByPath(nodes, activePath);
-      const fileSize = node?.size || null;
+      const fileSize = activeNode?.size || null;
 
       // Load the new file
       const loaded = await loadFile(activePath, fileSize);
@@ -100,7 +112,7 @@ export function MainContent() {
     };
 
     handleFileSwitch();
-  }, [activePath, setActiveFile, isDirty, currentPath, nodes, loadFile, saveFile, resetEditor, cancelAutoSave, focusEditor]);
+  }, [activePath, activeNode, setActiveFile, isDirty, currentPath, loadFile, saveFile, resetEditor, cancelAutoSave, focusEditor]);
 
   // Show empty state when no file selected
   if (!activePath) {
@@ -112,6 +124,18 @@ export function MainContent() {
           <p className="text-sm mt-2">
             Select a markdown file from the sidebar to start editing
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isActiveMarkdownFile) {
+    return (
+      <div className="h-full flex items-center justify-center bg-background">
+        <div className="text-center text-muted-foreground">
+          <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <p className="text-lg font-medium">Folder selected</p>
+          <p className="text-sm mt-2">Choose a markdown file to edit</p>
         </div>
       </div>
     );
