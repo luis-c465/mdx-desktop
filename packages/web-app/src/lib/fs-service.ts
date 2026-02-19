@@ -8,6 +8,20 @@ import {
 let workspaceHandle: FileSystemDirectoryHandle | null = null;
 let workspacePath: string | null = null;
 
+const ALLOWED_IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg"]);
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+
+const IMAGE_SOURCE_PASSTHROUGH_PATTERN = /^(https?:\/\/|data:|blob:|file:|\/\/)/i;
+
+const imagePreviewCache = new Map<
+  string,
+  {
+    url: string;
+    size: number;
+    lastModified: number;
+  }
+>();
+
 function ensureFsAccessSupport(): void {
   if (typeof window.showDirectoryPicker !== "function") {
     throw new Error("This browser does not support the File System Access API");
@@ -16,6 +30,62 @@ function ensureFsAccessSupport(): void {
 
 function normalizePath(path: string): string {
   return path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/^\/+|\/+$/g, "");
+}
+
+function sanitizeFilename(filename: string): string {
+  const sanitized = filename
+    .split("")
+    .map((char) => {
+      if (/^[A-Za-z0-9._-]$/.test(char)) {
+        return char;
+      }
+      return "_";
+    })
+    .join("")
+    .replace(/^_+|_+$/g, "");
+
+  return sanitized || "image";
+}
+
+function getFileExtension(filename: string): string {
+  const dotIndex = filename.lastIndexOf(".");
+  if (dotIndex <= 0 || dotIndex === filename.length - 1) {
+    return "";
+  }
+  return filename.slice(dotIndex + 1).toLowerCase();
+}
+
+function splitExtension(filename: string, extension: string): { name: string; extension: string } {
+  if (!extension) {
+    return { name: filename, extension: "" };
+  }
+
+  const suffix = `.${extension}`;
+  if (!filename.toLowerCase().endsWith(suffix)) {
+    return { name: filename, extension };
+  }
+
+  return {
+    name: filename.slice(0, -suffix.length),
+    extension,
+  };
+}
+
+function getUtcMonthDirectory(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+function isTypeMismatch(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "TypeMismatchError";
+}
+
+function clearImagePreviewCache(): void {
+  for (const cached of imagePreviewCache.values()) {
+    URL.revokeObjectURL(cached.url);
+  }
+  imagePreviewCache.clear();
 }
 
 function validateSegments(segments: string[]): void {
@@ -112,6 +182,73 @@ async function getParentDirectoryAndName(
 
 function isNotFound(error: unknown): boolean {
   return error instanceof DOMException && error.name === "NotFoundError";
+}
+
+function splitPathAndSuffix(path: string): { basePath: string; suffix: string } {
+  const queryIndex = path.indexOf("?");
+  const hashIndex = path.indexOf("#");
+  const firstSuffixIndex =
+    queryIndex === -1
+      ? hashIndex
+      : hashIndex === -1
+        ? queryIndex
+        : Math.min(queryIndex, hashIndex);
+
+  if (firstSuffixIndex === -1) {
+    return { basePath: path, suffix: "" };
+  }
+
+  return {
+    basePath: path.slice(0, firstSuffixIndex),
+    suffix: path.slice(firstSuffixIndex),
+  };
+}
+
+function resolveImageSourcePath(
+  imageSource: string,
+  currentWorkspacePath: string,
+  currentDocumentPath: string | null
+): string {
+  const trimmedSource = imageSource.trim();
+  const { basePath } = splitPathAndSuffix(trimmedSource);
+  const normalizedSource = normalizePath(basePath);
+
+  if (!normalizedSource) {
+    throw new Error("Image path cannot be empty");
+  }
+
+  const sourceSegments = normalizedSource.split("/").filter(Boolean);
+  const isWorkspaceAbsolute = basePath.startsWith("/");
+
+  let segments: string[] = [];
+
+  if (!isWorkspaceAbsolute && currentDocumentPath) {
+    const documentSegments = toRelativeSegments(currentDocumentPath, currentWorkspacePath);
+    segments = documentSegments.slice(0, -1);
+  }
+
+  for (const segment of sourceSegments) {
+    if (segment === ".") {
+      continue;
+    }
+
+    if (segment === "..") {
+      if (segments.length === 0) {
+        throw new Error("Image path cannot traverse outside workspace");
+      }
+      segments.pop();
+      continue;
+    }
+
+    validateSegments([segment]);
+    segments.push(segment);
+  }
+
+  if (segments.length === 0) {
+    throw new Error("Image path must reference a file");
+  }
+
+  return buildWorkspacePath(currentWorkspacePath, segments);
 }
 
 async function getExistingHandle(
@@ -233,6 +370,7 @@ export async function openWorkspace(): Promise<string> {
   const handle = await window.showDirectoryPicker({ mode: "readwrite" });
   workspaceHandle = handle;
   workspacePath = handle.name;
+  clearImagePreviewCache();
   await saveWorkspaceHandle(handle);
 
   return handle.name;
@@ -297,7 +435,108 @@ export async function hasStoredWorkspace(): Promise<boolean> {
 export async function clearWorkspace(): Promise<void> {
   workspaceHandle = null;
   workspacePath = null;
+  clearImagePreviewCache();
   await clearWorkspaceHandle();
+}
+
+async function fileExists(directory: FileSystemDirectoryHandle, name: string): Promise<boolean> {
+  try {
+    await directory.getFileHandle(name);
+    return true;
+  } catch (error) {
+    if (isNotFound(error) || isTypeMismatch(error)) {
+      return isTypeMismatch(error);
+    }
+    throw error;
+  }
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  const { handle: root } = await ensureWorkspace();
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error(
+      `Image size ${file.size} bytes exceeds maximum of ${MAX_IMAGE_SIZE} bytes (10MB)`
+    );
+  }
+
+  const sanitizedFilename = sanitizeFilename(file.name);
+
+  if (sanitizedFilename.includes("/") || sanitizedFilename.includes("\\")) {
+    throw new Error("Filename cannot contain path separators");
+  }
+
+  const extension = getFileExtension(sanitizedFilename);
+  if (!ALLOWED_IMAGE_EXTENSIONS.has(extension)) {
+    throw new Error(
+      `Unsupported image format. Allowed: ${Array.from(ALLOWED_IMAGE_EXTENSIONS).join(", ")}`
+    );
+  }
+
+  const now = new Date();
+  const monthDirectory = getUtcMonthDirectory(now);
+
+  const assetsDirectory = await root.getDirectoryHandle("assets", { create: true });
+  const monthHandle = await assetsDirectory.getDirectoryHandle(monthDirectory, { create: true });
+
+  const { name: baseName } = splitExtension(sanitizedFilename, extension);
+
+  let finalFilename = sanitizedFilename;
+  let collisionAttempt = 0;
+
+  while (await fileExists(monthHandle, finalFilename)) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const collisionSuffix = collisionAttempt === 0 ? `${timestamp}` : `${timestamp}-${collisionAttempt}`;
+    finalFilename = `${baseName}-${collisionSuffix}.${extension}`;
+    collisionAttempt += 1;
+  }
+
+  const fileHandle = await monthHandle.getFileHandle(finalFilename, { create: true });
+  const writable = await fileHandle.createWritable();
+
+  try {
+    await writable.write(await file.arrayBuffer());
+  } finally {
+    await writable.close();
+  }
+
+  return `assets/${monthDirectory}/${finalFilename}`;
+}
+
+export async function resolveImagePreviewSource(
+  imageSource: string,
+  currentDocumentPath: string | null
+): Promise<string> {
+  const trimmedSource = imageSource.trim();
+  if (!trimmedSource || IMAGE_SOURCE_PASSTHROUGH_PATTERN.test(trimmedSource)) {
+    return imageSource;
+  }
+
+  const { handle: root, path: currentWorkspacePath } = await ensureWorkspace();
+  const resolvedPath = resolveImageSourcePath(trimmedSource, currentWorkspacePath, currentDocumentPath);
+
+  const segments = toRelativeSegments(resolvedPath, currentWorkspacePath);
+  const { parent, name } = await getParentDirectoryAndName(root, segments, false);
+  const fileHandle = await parent.getFileHandle(name);
+  const file = await fileHandle.getFile();
+
+  const cached = imagePreviewCache.get(resolvedPath);
+  if (cached && cached.size === file.size && cached.lastModified === file.lastModified) {
+    return cached.url;
+  }
+
+  if (cached) {
+    URL.revokeObjectURL(cached.url);
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  imagePreviewCache.set(resolvedPath, {
+    url: objectUrl,
+    size: file.size,
+    lastModified: file.lastModified,
+  });
+
+  return objectUrl;
 }
 
 export async function readFile(path: string): Promise<string> {

@@ -127,5 +127,22 @@ export async function clearWorkspace(): Promise<void> {
 }
 
 export async function uploadImage(file: File): Promise<string> {
-  return URL.createObjectURL(file);
+  try {
+    return await fsService.uploadImage(file);
+  } catch (error) {
+    console.error("Failed to upload image:", error);
+    throw new Error(String(error));
+  }
+}
+
+export async function resolveImagePreviewSource(
+  imageSource: string,
+  currentDocumentPath: string | null
+): Promise<string> {
+  try {
+    return await fsService.resolveImagePreviewSource(imageSource, currentDocumentPath);
+  } catch (error) {
+    console.error("Failed to resolve image preview source:", error);
+    throw new Error(String(error));
+  }
 }

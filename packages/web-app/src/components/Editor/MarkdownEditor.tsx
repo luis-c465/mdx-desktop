@@ -43,7 +43,7 @@ import {
 import "@mdxeditor/editor/style.css";
 import { useEditorStore } from "../../stores/editorStore";
 import { useThemeStore } from "../../stores/themeStore";
-import { uploadImage } from "../../lib/api";
+import { resolveImagePreviewSource, uploadImage } from "../../lib/api";
 import { toast } from "sonner";
 import { useRef, useEffect, useState, useMemo } from "react";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -102,6 +102,7 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
   const content = useEditorStore((state) => state.content);
   const updateContent = useEditorStore((state) => state.updateContent);
   const setEditorRef = useEditorStore((state) => state.setEditorRef);
+  const currentPath = useEditorStore((state) => state.currentPath);
   const editorRef = useRef<MDXEditorMethods>(null);
   const theme = useThemeStore((state) => state.theme);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -165,6 +166,9 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
     // Image plugin with upload handler
     imagePlugin({
       imageUploadHandler,
+      imagePreviewHandler: async (imageSource) => {
+        return await resolveImagePreviewSource(imageSource, currentPath);
+      },
     }),
     
     // Table support
@@ -280,7 +284,7 @@ export function MarkdownEditor({}: MarkdownEditorProps = {}) {
         </>
       ),
     }),
-  ], [isDarkMode]);
+  ], [currentPath, isDarkMode]);
 
   if (content === null) {
     return null;
