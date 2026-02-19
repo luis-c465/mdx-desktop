@@ -1,11 +1,335 @@
 @import "tailwindcss";
 
-html,
-body,
-#root {
-  height: 100%;
+@plugin "tailwindcss-animate";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-body {
-  margin: 0;
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* MDXEditor custom styling */
+.mdx-editor-container {
+  height: 100%;
+  background-color: transparent !important;
+  color: var(--foreground);
+}
+
+.mdx-editor-container .mdxeditor-toolbar {
+  background-color: var(--muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* MDXEditor toolbar button icons - fix dark mode visibility */
+.mdx-editor-container .mdxeditor-toolbar button svg {
+  color: var(--foreground) !important;
+}
+
+/* Active/pressed toolbar button state */
+.mdx-editor-container .mdxeditor-toolbar button[data-state="on"] svg {
+  color: var(--primary) !important;
+}
+
+/* Hover state for toolbar buttons */
+.mdx-editor-container .mdxeditor-toolbar button:hover:not(:disabled) svg {
+  color: var(--accent-foreground) !important;
+}
+
+/* Disabled state for toolbar buttons */
+.mdx-editor-container .mdxeditor-toolbar button:disabled svg {
+  color: var(--muted-foreground) !important;
+  opacity: 0.5;
+}
+
+/* MDXEditor Dark Mode Overrides (Global & Portal) */
+.dark {
+  --basePageBg: var(--popover);
+  --baseText: var(--foreground);
+  --baseTextContrast: var(--foreground);
+  --baseBg: var(--muted);
+  --baseBgHover: var(--accent);
+  --baseBgActive: var(--accent);
+  --baseBorder: var(--border);
+  --baseLine: var(--border);
+  --baseSolid: var(--foreground);
+}
+
+/* Force override for MDXEditor root and portals in dark mode */
+.dark .mdxeditor,
+.dark [class*="editorRoot"],
+.dark [class*="selectContainer"],
+.dark [class*="toolbarNodeKindSelectContainer"],
+.dark [class*="toolbarButtonDropdownContainer"] {
+  --basePageBg: var(--popover) !important;
+  --baseText: var(--foreground) !important;
+  --baseTextContrast: var(--foreground) !important;
+  --baseBg: var(--muted) !important;
+  --baseBgHover: var(--accent) !important;
+  --baseBgActive: var(--accent) !important;
+  --baseBorder: var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+/* Fix text color for dropdown items */
+.dark [class*="selectItem"],
+.dark [class*="toolbarNodeKindSelectItem"] {
+  color: var(--foreground) !important;
+}
+
+.dark [class*="selectItem"][data-highlighted],
+.dark [class*="toolbarNodeKindSelectItem"][data-highlighted] {
+  background-color: var(--accent) !important;
+}
+
+.mdx-editor-container .mdxeditor-root-contenteditable {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* Prose styles for better typography */
+.prose {
+  color: var(--foreground);
+  max-width: none;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *)) {
+  background-color: var(--muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose :where(pre):not(:where([class~="not-prose"] *)) {
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"] *)) {
+  border-left-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+.prose :where(a):not(:where([class~="not-prose"] *)) {
+  color: var(--primary);
+}
+
+/* List styles - ensure markers are visible */
+.prose :where(ul):not(:where([class~="not-prose"] *)) {
+  list-style-type: disc;
+  padding-left: 1.625em;
+}
+
+.prose :where(ol):not(:where([class~="not-prose"] *)) {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+}
+
+.prose :where(li):not(:where([class~="not-prose"] *)) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :where(ul > li):not(:where([class~="not-prose"] *))::marker {
+  color: var(--foreground);
+}
+
+.prose :where(ol > li):not(:where([class~="not-prose"] *))::marker {
+  color: var(--foreground);
+}
+
+/* Nested lists */
+.prose :where(ul ul, ul ol, ol ul, ol ol):not(:where([class~="not-prose"] *)) {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+/* Task lists (checkboxes) */
+.prose :where(input[type="checkbox"]):not(:where([class~="not-prose"] *)) {
+  color: var(--primary);
+  cursor: pointer;
+  margin-right: 0.5em;
+}
+
+/* CodeMirror and Code Block Toolbar Dark Mode Fixes */
+
+/* 1. CodeMirror Tooltips and Panels (Language selector, etc.) */
+.dark .cm-tooltip,
+.dark .cm-tooltip-autocomplete,
+.dark .cm-panel,
+.dark .cm-panels {
+  background-color: var(--popover) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* 2. Dropdowns and Inputs within CodeMirror/CodeBlock UI */
+.dark .cm-panel select,
+.dark .cm-panel input,
+.dark .cm-tooltip select,
+.dark .cm-tooltip input,
+.dark [class*="codeBlock"] select,
+.dark [class*="codeMirror"] select {
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* 3. Text in these controls */
+.dark .cm-panel label,
+.dark .cm-tooltip label,
+.dark [class*="codeBlock"] label {
+  color: var(--foreground) !important;
+}
+
+/* 4. Fix for specific MDXEditor code block toolbar */
+.dark [class*="codeMirrorToolbar"],
+.dark [class*="codeBlockEditorDescriptor"] {
+  background-color: var(--muted) !important;
+  border-color: var(--border) !important;
+}
+
+/* 5. Ensure svg icons in these toolbars are visible */
+.dark [class*="codeMirrorToolbar"] svg,
+.dark [class*="codeBlock"] svg {
+  color: var(--foreground) !important;
+}
+
+/* 6. Active/Hover states for items in these menus */
+.dark .cm-tooltip-autocomplete > ul > li[aria-selected="true"] {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+}
+
+/* Search Highlighting - CSS Highlight API */
+/* All search matches - yellow background */
+::highlight(MdxSearch) {
+  background-color: #fef08a; /* yellow-200 - works in both light and dark mode */
+  color: inherit;
+}
+
+/* Current/active search match - orange background */
+::highlight(MdxFocusSearch) {
+  background-color: #fb923c; /* orange-400 */
+  color: #000;
 }
