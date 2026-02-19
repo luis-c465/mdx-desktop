@@ -6,10 +6,9 @@
 import { FilePlus, FolderPlus, Trash2, RefreshCw } from "lucide-react";
 import { Button } from "../ui/button";
 import { useFileTreeStore } from "../../stores/fileTreeStore";
-import { useWorkspaceStore } from "../../stores/workspaceStore";
 
 export function FileTreeToolbar() {
-  const { 
+  const {
     activePath, 
     startInlineCreation,
     deleteNodeOptimistic,
@@ -17,11 +16,10 @@ export function FileTreeToolbar() {
     loadRootDirectory,
     isLoading,
   } = useFileTreeStore();
-  const workspacePath = useWorkspaceStore((state) => state.workspacePath);
 
   const handleNewFile = () => {
     // Determine parent path and insert position
-    let parentPath = workspacePath || '.';
+    let parentPath = '.';
     let insertAfterPath: string | null = null;
 
     if (activePath) {
@@ -58,7 +56,7 @@ export function FileTreeToolbar() {
 
   const handleNewFolder = () => {
     // Same logic as handleNewFile
-    let parentPath = workspacePath || '.';
+    let parentPath = '.';
     let insertAfterPath: string | null = null;
 
     if (activePath) {

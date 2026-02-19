@@ -42,6 +42,9 @@ interface FileTreeStore {
   /** Root file tree nodes */
   nodes: FileNode[];
 
+  /** Workspace root identifier returned by the FS service */
+  workspaceRootPath: string | null;
+
   /** Currently selected/active file path */
   activePath: string | null;
 
@@ -210,6 +213,7 @@ interface FileTreeStore {
 
 export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
   nodes: [],
+  workspaceRootPath: null,
   activePath: null,
   expandedFolders: new Set(),
   isLoading: false,
@@ -222,10 +226,13 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     try {
       // Read root directory (use "." for workspace root)
       const rootNode = await readDirectory(".", false);
-      
+      const workspaceRootPath = normalizeStorePath(rootNode.path);
+
       // Set root nodes to children of the root directory, filtered to only markdown files
-      const nodes = filterMarkdownFiles(rootNode.children || []);
-      set({ nodes, isLoading: false });
+      const nodes = filterMarkdownFiles(
+        normalizeNodesToRelative(rootNode.children || [], workspaceRootPath)
+      );
+      set({ nodes, workspaceRootPath, isLoading: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       set({ error: errorMessage, isLoading: false, nodes: [] });
@@ -233,22 +240,23 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
   },
 
   toggleFolder: async (path: string) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
     const { expandedFolders, nodes } = get();
     
     // Check if already expanded
-    const isExpanded = expandedFolders.has(path);
+    const isExpanded = expandedFolders.has(normalizedPath);
     
     if (isExpanded) {
       // Collapse: remove from expanded set
       const newExpanded = new Set(expandedFolders);
-      newExpanded.delete(path);
+      newExpanded.delete(normalizedPath);
       set({ expandedFolders: newExpanded });
     } else {
       // Expand: check if we need to load children
-      const node = findNodeByPath(nodes, path);
+      const node = findNodeByPath(nodes, normalizedPath);
       
       if (!node) {
-        set({ error: `Node not found: ${path}` });
+        set({ error: `Node not found: ${normalizedPath}` });
         return;
       }
 
@@ -256,17 +264,17 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
       if (node.children === null) {
         set({ isLoading: true, error: null });
         try {
-          // Convert absolute path to relative path for backend
-          // The path stored in node is absolute from backend
-          const relativePath = path;
-          const dirNode = await readDirectory(relativePath, false);
+          const dirNode = await readDirectory(normalizedPath, false);
           
           // Update node with children, filtered to only markdown files
-          get().updateNode(path, filterMarkdownFiles(dirNode.children || []));
+          const children = filterMarkdownFiles(
+            normalizeNodesToRelative(dirNode.children || [], get().workspaceRootPath)
+          );
+          get().updateNode(normalizedPath, children);
           
           // Add to expanded set
           const newExpanded = new Set(expandedFolders);
-          newExpanded.add(path);
+          newExpanded.add(normalizedPath);
           set({ expandedFolders: newExpanded, isLoading: false });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
@@ -275,19 +283,20 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
       } else {
         // Children already loaded, just toggle expansion
         const newExpanded = new Set(expandedFolders);
-        newExpanded.add(path);
+        newExpanded.add(normalizedPath);
         set({ expandedFolders: newExpanded });
       }
     }
   },
 
   setActiveFile: (path: string | null) => {
-    set({ activePath: path });
+    set({ activePath: path ? normalizeTreePath(path, get().workspaceRootPath) : null });
   },
 
   updateNode: (path: string, children: FileNode[]) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
     set((state) => ({
-      nodes: updateNodeChildren(state.nodes, path, children),
+      nodes: updateNodeChildren(state.nodes, normalizedPath, children),
     }));
   },
 
@@ -295,6 +304,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
 
   resetTree: () => set({
     nodes: [],
+    workspaceRootPath: null,
     activePath: null,
     expandedFolders: new Set(),
     isLoading: false,
@@ -361,45 +371,58 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
   },
 
   addOptimisticNode: (parentPath: string, node: FileNode) => {
+    const normalizedParentPath = normalizeTreePath(parentPath, get().workspaceRootPath);
     set((state) => ({
-      nodes: addNodeToTree(state.nodes, parentPath, node),
+      nodes: addNodeToTree(state.nodes, normalizedParentPath, node),
     }));
 
     // Expand parent folder if not already expanded
     const { expandedFolders } = get();
-    if (parentPath !== '.' && !expandedFolders.has(parentPath)) {
+    if (normalizedParentPath !== '.' && !expandedFolders.has(normalizedParentPath)) {
       const newExpanded = new Set(expandedFolders);
-      newExpanded.add(parentPath);
+      newExpanded.add(normalizedParentPath);
       set({ expandedFolders: newExpanded });
     }
   },
 
   removeOptimisticNode: (path: string) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
     set((state) => ({
-      nodes: removeNodeByPath(state.nodes, path),
+      nodes: removeNodeByPath(state.nodes, normalizedPath),
     }));
 
     // If removed node was active, clear active path
-    if (get().activePath === path) {
+    if (get().activePath === normalizedPath) {
       set({ activePath: null });
     }
   },
 
   updateOptimisticNode: (path: string, updates: Partial<FileNode>) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
+    const normalizedUpdates = {
+      ...updates,
+      path:
+        typeof updates.path === "string"
+          ? normalizeTreePath(updates.path, get().workspaceRootPath)
+          : updates.path,
+    };
+
     set((state) => ({
-      nodes: updateNodeInTree(state.nodes, path, updates),
+      nodes: updateNodeInTree(state.nodes, normalizedPath, normalizedUpdates),
     }));
   },
 
   markNodePending: (path: string, isPending: boolean) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
     set((state) => ({
-      nodes: updateNodeInTree(state.nodes, path, { isPending }),
+      nodes: updateNodeInTree(state.nodes, normalizedPath, { isPending }),
     }));
   },
 
   createFileOptimistic: async (parentPath: string, fileName: string) => {
     const operationId = crypto.randomUUID();
-    const fullPath = parentPath === '.' ? fileName : `${parentPath}/${fileName}`;
+    const normalizedParentPath = normalizeTreePath(parentPath, get().workspaceRootPath);
+    const fullPath = normalizedParentPath === '.' ? fileName : `${normalizedParentPath}/${fileName}`;
     const snapshot = createTreeSnapshot(get().nodes);
 
     // Check for concurrent operations on same path
@@ -421,7 +444,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     });
 
     // Optimistic update - add node to tree
-    get().addOptimisticNode(parentPath, {
+    get().addOptimisticNode(normalizedParentPath, {
       name: fileName,
       path: fullPath,
       is_file: true,
@@ -442,7 +465,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
         // Focus the newly created file
         get().setActiveFile(fullPath);
         // Refresh parent folder to get real metadata from backend
-        get().refreshNode(parentPath);
+        get().refreshNode(normalizedParentPath);
         return `Created ${fileName}`;
       },
       error: (err) => {
@@ -462,7 +485,8 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
 
   createFolderOptimistic: async (parentPath: string, folderName: string) => {
     const operationId = crypto.randomUUID();
-    const fullPath = parentPath === '.' ? folderName : `${parentPath}/${folderName}`;
+    const normalizedParentPath = normalizeTreePath(parentPath, get().workspaceRootPath);
+    const fullPath = normalizedParentPath === '.' ? folderName : `${normalizedParentPath}/${folderName}`;
     const snapshot = createTreeSnapshot(get().nodes);
 
     // Check for concurrent operations on same path
@@ -484,7 +508,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     });
 
     // Optimistic update - add folder to tree
-    get().addOptimisticNode(parentPath, {
+    get().addOptimisticNode(normalizedParentPath, {
       name: folderName,
       path: fullPath,
       is_file: false,
@@ -509,7 +533,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
         set({ expandedFolders: newExpanded });
         
         // Refresh parent folder to get real metadata from backend
-        get().refreshNode(parentPath);
+        get().refreshNode(normalizedParentPath);
 
         return `Created folder ${folderName}`;
       },
@@ -530,16 +554,17 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
 
   renameNodeOptimistic: async (oldPath: string, newName: string) => {
     const operationId = crypto.randomUUID();
-    const parentPath = oldPath.includes('/') 
-      ? oldPath.substring(0, oldPath.lastIndexOf('/'))
+    const normalizedOldPath = normalizeTreePath(oldPath, get().workspaceRootPath);
+    const parentPath = normalizedOldPath.includes('/') 
+      ? normalizedOldPath.substring(0, normalizedOldPath.lastIndexOf('/'))
       : '.';
     const newPath = parentPath === '.' ? newName : `${parentPath}/${newName}`;
     const snapshot = createTreeSnapshot(get().nodes);
-    const wasActive = get().activePath === oldPath;
+    const wasActive = get().activePath === normalizedOldPath;
 
     // Check for concurrent operations
     const existingOp = Array.from(get().pendingOperations.values())
-      .find(op => op.path === newPath || op.originalPath === oldPath);
+      .find(op => op.path === newPath || op.originalPath === normalizedOldPath);
     
     if (existingOp) {
       toast.error("Operation already in progress for this item");
@@ -551,13 +576,13 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
       id: operationId,
       type: 'rename',
       path: newPath,
-      originalPath: oldPath,
+      originalPath: normalizedOldPath,
       timestamp: Date.now(),
       snapshot,
     });
 
     // Optimistic update - rename node
-    get().updateOptimisticNode(oldPath, {
+    get().updateOptimisticNode(normalizedOldPath, {
       name: newName,
       path: newPath,
       isPending: true,
@@ -569,7 +594,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     }
 
     // Backend call with toast
-    const promise = api.renamePath(oldPath, newPath);
+    const promise = api.renamePath(normalizedOldPath, newPath);
 
     toast.promise(promise, {
       loading: `Renaming to ${newName}...`,
@@ -584,7 +609,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
         get().rollbackOperation(operationId);
         // Restore active path if needed
         if (wasActive) {
-          set({ activePath: oldPath });
+          set({ activePath: normalizedOldPath });
         }
         const message = err instanceof Error ? err.message : String(err);
         return `Failed to rename: ${message}`;
@@ -600,11 +625,12 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
   },
 
   deleteNodeOptimistic: async (path: string) => {
+    const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
     const operationId = crypto.randomUUID();
     const snapshot = createTreeSnapshot(get().nodes);
-    const wasActive = get().activePath === path;
-    const node = findNodeByPath(get().nodes, path);
-    const fileName = path.split('/').pop() || path;
+    const wasActive = get().activePath === normalizedPath;
+    const node = findNodeByPath(get().nodes, normalizedPath);
+    const fileName = normalizedPath.split('/').pop() || normalizedPath;
 
     if (!node) {
       toast.error("File not found");
@@ -629,7 +655,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
 
     // Check for concurrent operations
     const existingOp = Array.from(get().pendingOperations.values())
-      .find(op => op.path === path);
+      .find(op => op.path === normalizedPath);
     
     if (existingOp) {
       toast.error("Operation already in progress for this item");
@@ -640,7 +666,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     let fileContent: string | undefined;
     if (node.is_file) {
       try {
-        fileContent = await api.readFile(path);
+        fileContent = await api.readFile(normalizedPath);
       } catch (error) {
         console.warn(`[FileTreeStore] Could not read file content for undo:`, error);
         // Continue with deletion even if read fails
@@ -651,7 +677,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     const undoAction = {
       id: operationId,
       type: 'delete' as const,
-      path,
+      path: normalizedPath,
       node: structuredClone(node),
       timestamp: Date.now(),
       content: fileContent,
@@ -662,13 +688,13 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     get().addPendingOperation({
       id: operationId,
       type: 'delete',
-      path,
+      path: normalizedPath,
       timestamp: Date.now(),
       snapshot,
     });
 
     // Optimistic update - remove node
-    get().removeOptimisticNode(path);
+    get().removeOptimisticNode(normalizedPath);
     
     // Clear active file if deleted
     if (wasActive) {
@@ -676,11 +702,11 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
     }
 
     // Backend call with toast
-    const promise = api.deletePath(path);
+    const promise = api.deletePath(normalizedPath);
 
     // Calculate parent path for refresh
-    const parentPath = path.includes('/') 
-      ? path.substring(0, path.lastIndexOf('/'))
+    const parentPath = normalizedPath.includes('/') 
+      ? normalizedPath.substring(0, normalizedPath.lastIndexOf('/'))
       : '.';
 
     toast.promise(promise, {
@@ -695,7 +721,7 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
         get().rollbackOperation(operationId);
         // Restore active file if needed
         if (wasActive) {
-          set({ activePath: path });
+          set({ activePath: normalizedPath });
         }
         // Remove from undo stack on error
         useUndoStore.getState().removeUndoAction(operationId);
@@ -722,11 +748,16 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
   },
 
   startInlineCreation: (type: 'file' | 'folder', parentPath: string, insertAfterPath: string | null = null) => {
+    const normalizedParentPath = normalizeTreePath(parentPath, get().workspaceRootPath);
+    const normalizedInsertAfterPath = insertAfterPath
+      ? normalizeTreePath(insertAfterPath, get().workspaceRootPath)
+      : null;
+
     set({
       creationState: {
         type,
-        parentPath,
-        insertAfterPath,
+        parentPath: normalizedParentPath,
+        insertAfterPath: normalizedInsertAfterPath,
       },
     });
   },
@@ -773,44 +804,74 @@ export const useFileTreeStore = create<FileTreeStore>((set, get) => ({
 
   refreshNode: async (path: string) => {
     try {
-      // Check if path is root (either '.' or actual workspace path)
-      let isRoot = path === '.';
-      
-      if (!isRoot) {
-        try {
-          // Check if path matches workspace root
-          const workspace = await api.getWorkspace();
-          if (workspace && (path === workspace || path === workspace + '/' || path === workspace + '\\')) {
-            isRoot = true;
-          }
-        } catch (e) {
-          // Ignore error, assume not root
-        }
-      }
+      const normalizedPath = normalizeTreePath(path, get().workspaceRootPath);
+      const isRoot = normalizedPath === '.';
 
       if (isRoot) {
         // If refreshing root, reuse loadRootDirectory logic but keep it silent
         const rootNode = await readDirectory(".", false);
-        const nodes = filterMarkdownFiles(rootNode.children || []);
-        set({ nodes });
+        const workspaceRootPath = normalizeStorePath(rootNode.path);
+        const nodes = filterMarkdownFiles(
+          normalizeNodesToRelative(rootNode.children || [], workspaceRootPath)
+        );
+        set({ nodes, workspaceRootPath });
         return;
       }
 
       // Check if folder is currently expanded (if not, no need to refresh as it will load on expand)
       const { expandedFolders } = get();
-      if (!expandedFolders.has(path)) {
+      if (!expandedFolders.has(normalizedPath)) {
         return;
       }
 
       // Refresh specific folder
-      const dirNode = await readDirectory(path, false);
-      get().updateNode(path, filterMarkdownFiles(dirNode.children || []));
+      const dirNode = await readDirectory(normalizedPath, false);
+      const children = filterMarkdownFiles(
+        normalizeNodesToRelative(dirNode.children || [], get().workspaceRootPath)
+      );
+      get().updateNode(normalizedPath, children);
     } catch (error) {
       console.error(`Failed to refresh node ${path}:`, error);
       // Don't show error to user as this is a background sync
     }
   },
 }));
+
+function normalizeStorePath(path: string): string {
+  const normalized = path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/^\/+|\/+$/g, "");
+  return normalized === "" ? "." : normalized;
+}
+
+function normalizeTreePath(path: string, workspaceRootPath: string | null): string {
+  const normalizedPath = normalizeStorePath(path);
+
+  if (!workspaceRootPath || normalizedPath === ".") {
+    return normalizedPath;
+  }
+
+  if (normalizedPath === workspaceRootPath) {
+    return ".";
+  }
+
+  const workspacePrefix = `${workspaceRootPath}/`;
+  if (normalizedPath.startsWith(workspacePrefix)) {
+    const relativePath = normalizedPath.slice(workspacePrefix.length);
+    return relativePath === "" ? "." : relativePath;
+  }
+
+  return normalizedPath;
+}
+
+function normalizeNodesToRelative(
+  nodes: FileNode[],
+  workspaceRootPath: string | null
+): FileNode[] {
+  return nodes.map((node) => ({
+    ...node,
+    path: normalizeTreePath(node.path, workspaceRootPath),
+    children: node.children ? normalizeNodesToRelative(node.children, workspaceRootPath) : node.children,
+  }));
+}
 
 /**
  * Helper function to filter nodes to only include markdown files and directories
@@ -961,4 +1022,3 @@ function sortNodesByName(nodes: FileNode[]): FileNode[] {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
   });
 }
-
