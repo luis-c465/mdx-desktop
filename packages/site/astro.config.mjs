@@ -8,6 +8,8 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://luis-c465.github.io',
+  base: '/mdx-desktop',
   integrations: [starlight({
       title: 'MDX Desktop',
       description: 'A native desktop markdown editor built for performance',
