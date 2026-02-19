@@ -262,6 +262,38 @@ export async function restoreWorkspace(): Promise<string | null> {
   return workspacePath;
 }
 
+export async function requestWorkspacePermission(): Promise<string | null> {
+  let handle = workspaceHandle;
+
+  if (!handle) {
+    handle = await loadWorkspaceHandle();
+  }
+
+  if (!handle || !handle.requestPermission) {
+    return null;
+  }
+
+  const permission = await handle.requestPermission({ mode: "readwrite" });
+  if (permission !== "granted") {
+    return null;
+  }
+
+  workspaceHandle = handle;
+  workspacePath = handle.name;
+  await saveWorkspaceHandle(handle);
+
+  return workspacePath;
+}
+
+export async function hasStoredWorkspace(): Promise<boolean> {
+  if (workspaceHandle && workspacePath) {
+    return true;
+  }
+
+  const handle = await loadWorkspaceHandle();
+  return handle !== null;
+}
+
 export async function clearWorkspace(): Promise<void> {
   workspaceHandle = null;
   workspacePath = null;

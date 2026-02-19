@@ -19,6 +19,24 @@ export async function getWorkspace(): Promise<string | null> {
   }
 }
 
+export async function requestWorkspacePermission(): Promise<string | null> {
+  try {
+    return await fsService.requestWorkspacePermission();
+  } catch (error) {
+    console.error("Failed to request workspace permission:", error);
+    throw new Error(`Failed to request workspace permission: ${error}`);
+  }
+}
+
+export async function hasStoredWorkspace(): Promise<boolean> {
+  try {
+    return await fsService.hasStoredWorkspace();
+  } catch (error) {
+    console.error("Failed to check stored workspace:", error);
+    throw new Error(`Failed to check stored workspace: ${error}`);
+  }
+}
+
 export async function readDirectory(
   path: string,
   includeHidden: boolean = false
