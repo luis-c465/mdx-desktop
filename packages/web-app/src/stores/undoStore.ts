@@ -34,6 +34,14 @@ interface UndoableAction {
 /** Duration in milliseconds that actions remain undoable (5 seconds) */
 const UNDO_WINDOW_MS = 5000;
 
+function isActionUndoable(action: UndoableAction, now: number = Date.now()): boolean {
+  return now - action.timestamp < UNDO_WINDOW_MS;
+}
+
+function getParentPath(path: string): string {
+  return path.includes("/") ? path.substring(0, path.lastIndexOf("/")) : ".";
+}
+
 interface UndoStore {
   /** Stack of undoable actions */
   undoStack: UndoableAction[];
@@ -84,15 +92,24 @@ export const useUndoStore = create<UndoStore>((set, get) => ({
   },
 
   undo: async () => {
-    const { undoStack } = get();
-    
-    if (undoStack.length === 0) {
+    const now = Date.now();
+    const undoStack = get().undoStack;
+    const validActions = undoStack.filter((action) => isActionUndoable(action, now));
+
+    if (validActions.length === 0) {
+      // Opportunistically remove expired actions before returning
+      set({ undoStack: validActions });
       console.warn('[UndoStore] No actions to undo');
       return;
     }
 
-    // Get most recent action
-    const action = undoStack[undoStack.length - 1];
+    // Keep only actions that are still inside the undo window
+    if (validActions.length !== undoStack.length) {
+      set({ undoStack: validActions });
+    }
+
+    // Get most recent valid action
+    const action = validActions[validActions.length - 1];
 
     // Remove from stack immediately
     get().removeUndoAction(action.id);
@@ -115,9 +132,7 @@ export const useUndoStore = create<UndoStore>((set, get) => ({
         console.log(`[UndoStore] Undid delete of ${action.path}`);
         
         // Calculate parent path for refresh
-        const parentPath = action.path.includes('/') 
-          ? action.path.substring(0, action.path.lastIndexOf('/'))
-          : '.';
+        const parentPath = getParentPath(action.path);
         
         // Refresh parent folder to show restored file/folder in UI
         await useFileTreeStore.getState().refreshNode(parentPath);
@@ -134,7 +149,7 @@ export const useUndoStore = create<UndoStore>((set, get) => ({
     const now = Date.now();
     set((state) => ({
       undoStack: state.undoStack.filter(
-        (action) => now - action.timestamp < UNDO_WINDOW_MS
+        (action) => isActionUndoable(action, now)
       ),
     }));
   },
