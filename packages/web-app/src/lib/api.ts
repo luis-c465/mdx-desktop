@@ -1,78 +1,111 @@
 import type { DirectoryPage, FileNode } from "../types";
-
-const PLACEHOLDER_WORKSPACE = "web-workspace";
-
-let workspacePath: string | null = null;
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+import * as fsService from "./fs-service";
 
 export async function showOpenDialog(): Promise<string | null> {
-  workspacePath = PLACEHOLDER_WORKSPACE;
-  return workspacePath;
+  try {
+    return await fsService.openWorkspace();
+  } catch (error) {
+    console.error("Failed to open workspace:", error);
+    throw new Error(`Failed to open folder dialog: ${error}`);
+  }
 }
 
 export async function getWorkspace(): Promise<string | null> {
-  return workspacePath;
+  try {
+    return await fsService.restoreWorkspace();
+  } catch (error) {
+    console.error("Failed to restore workspace:", error);
+    throw new Error(`Failed to get workspace: ${error}`);
+  }
 }
 
 export async function readDirectory(
   path: string,
-  _includeHidden: boolean = false
+  includeHidden: boolean = false
 ): Promise<FileNode> {
-  const pathParts = path.split("/").filter(Boolean);
-  const fallbackName = pathParts.length > 0 ? pathParts[pathParts.length - 1] : "workspace";
-
-  return {
-    path,
-    name: path === "." || path === "" ? "workspace" : fallbackName,
-    is_file: false,
-    size: null,
-    modified: nowIso(),
-    children: [],
-  };
+  try {
+    return await fsService.readDirectory(path, includeHidden);
+  } catch (error) {
+    console.error("Failed to read directory:", error);
+    throw new Error(`Failed to read directory "${path}": ${error}`);
+  }
 }
 
 export async function getDirectoryPage(
-  _path: string,
-  _offset: number,
-  _limit: number,
-  _includeHidden: boolean = false
+  path: string,
+  offset: number,
+  limit: number,
+  includeHidden: boolean = false
 ): Promise<DirectoryPage> {
-  return {
-    nodes: [],
-    total_count: 0,
-    has_more: false,
-  };
+  try {
+    return await fsService.getDirectoryPage(path, offset, limit, includeHidden);
+  } catch (error) {
+    console.error("Failed to get directory page:", error);
+    throw new Error(`Failed to get directory page "${path}": ${error}`);
+  }
 }
 
-export async function readFile(_path: string): Promise<string> {
-  return "";
+export async function readFile(path: string): Promise<string> {
+  try {
+    return await fsService.readFile(path);
+  } catch (error) {
+    console.error("Failed to read file:", error);
+    throw new Error(`Failed to read file "${path}": ${error}`);
+  }
 }
 
-export async function writeFile(_path: string, _content: string): Promise<void> {
-  return;
+export async function writeFile(path: string, content: string): Promise<void> {
+  try {
+    await fsService.writeFile(path, content);
+  } catch (error) {
+    console.error("Failed to write file:", error);
+    throw new Error(`Failed to write file "${path}": ${error}`);
+  }
 }
 
-export async function createFile(_path: string): Promise<void> {
-  return;
+export async function createFile(path: string): Promise<void> {
+  try {
+    await fsService.createFile(path);
+  } catch (error) {
+    console.error("Failed to create file:", error);
+    throw new Error(String(error));
+  }
 }
 
-export async function createFolder(_path: string): Promise<void> {
-  return;
+export async function createFolder(path: string): Promise<void> {
+  try {
+    await fsService.createFolder(path);
+  } catch (error) {
+    console.error("Failed to create folder:", error);
+    throw new Error(String(error));
+  }
 }
 
-export async function renamePath(_oldPath: string, _newPath: string): Promise<void> {
-  return;
+export async function renamePath(oldPath: string, newPath: string): Promise<void> {
+  try {
+    await fsService.renamePath(oldPath, newPath);
+  } catch (error) {
+    console.error("Failed to rename:", error);
+    throw new Error(String(error));
+  }
 }
 
-export async function deletePath(_path: string): Promise<void> {
-  return;
+export async function deletePath(path: string): Promise<void> {
+  try {
+    await fsService.deletePath(path);
+  } catch (error) {
+    console.error("Failed to delete:", error);
+    throw new Error(String(error));
+  }
 }
 
 export async function clearWorkspace(): Promise<void> {
-  workspacePath = null;
+  try {
+    await fsService.clearWorkspace();
+  } catch (error) {
+    console.error("Failed to clear workspace:", error);
+    throw new Error(`Failed to clear workspace: ${error}`);
+  }
 }
 
 export async function uploadImage(file: File): Promise<string> {
