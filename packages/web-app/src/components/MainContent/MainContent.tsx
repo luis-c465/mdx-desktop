@@ -11,6 +11,7 @@ import { Editor } from "../Editor";
 
 export function MainContent() {
   const activePath = useFileTreeStore((state) => state.activePath);
+  const setActiveFile = useFileTreeStore((state) => state.setActiveFile);
   const nodes = useFileTreeStore((state) => state.nodes);
   const isDirty = useEditorStore((state) => state.isDirty);
   const saveFile = useEditorStore((state) => state.saveFile);
@@ -49,7 +50,12 @@ export function MainContent() {
         if (isDirty && currentPath) {
           // Cancel pending auto-save before immediate save
           cancelAutoSave();
-          await saveFile();
+          const saved = await saveFile();
+          if (!saved) {
+            setActiveFile(currentPath);
+            previousPathRef.current = currentPath;
+            return;
+          }
         }
         resetEditor();
         previousPathRef.current = null;
@@ -68,7 +74,12 @@ export function MainContent() {
       if (isDirty && currentPath && currentPath !== activePath) {
         // Cancel pending auto-save before immediate save
         cancelAutoSave();
-        await saveFile();
+        const saved = await saveFile();
+        if (!saved) {
+          setActiveFile(currentPath);
+          previousPathRef.current = currentPath;
+          return;
+        }
       }
 
       // Find the node to get file size
@@ -81,13 +92,15 @@ export function MainContent() {
       // Focus the editor after successfully loading the file
       if (loaded) {
         focusEditor();
+      } else if (currentPath) {
+        setActiveFile(currentPath);
       }
       
       previousPathRef.current = activePath;
     };
 
     handleFileSwitch();
-  }, [activePath, isDirty, currentPath, nodes, loadFile, saveFile, resetEditor, cancelAutoSave, focusEditor]);
+  }, [activePath, setActiveFile, isDirty, currentPath, nodes, loadFile, saveFile, resetEditor, cancelAutoSave, focusEditor]);
 
   // Show empty state when no file selected
   if (!activePath) {
